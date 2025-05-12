@@ -1,0 +1,74 @@
+{
+  "codebook":
+          {
+            "Ⅰ":{
+                "Code": "",
+                "justification": ""
+              },
+            "Ⅱ":{
+                "Code": "",
+                "justification": ""
+              },
+            "Ⅲ":{
+                "Code": "",
+                "justification": ""
+              }
+          },
+  "decision marker":
+          {
+            "meta prompt": "",
+            "Agreement Point":{
+              "Ⅰ":
+              {
+                "Code": "",
+                "justification": ""
+              },
+              "Ⅱ":
+              {
+                "Code": "",
+                "justification": ""
+              }
+            } ,
+            "Disagreement Point": {
+              "Ⅰ":
+              {
+                "Code": "",
+                "justification": ""
+              },
+              "Ⅱ":
+              {
+                "Code": "",
+                "justification": ""
+              }
+            }
+          },
+  "evaluate maker":{
+    "meta prompt": "",
+    "IRR": ""
+  },
+  {
+        "role": "Software Developer",
+        "disciplinary_background": "Computer Science, Software Engineering",
+        "perspective": "Pays close attention to issues like code maintainability, modularity, and technical complexity. Focuses on how design decisions impact implementation and debugging effort."
+      },
+      {
+        "role": "UX Designer",
+        "disciplinary_background": "Human-Computer Interaction (HCI), Design Studies",
+        "perspective": "Focuses on user flows, interaction patterns, and usability bottlenecks. Looks for design elements that affect user satisfaction and emotional response."
+      },
+      {
+        "role": "Software Architect",
+        "disciplinary_background": "Software Engineering, Systems Design",
+        "perspective": "Examines system-level design decisions, scalability, and architecture patterns. Concerned with long-term system robustness and alignment with design principles."
+      },
+      {
+        "role": "Product Manager",
+        "disciplinary_background": "Business Administration, Product Management, HCI (minor)",
+        "perspective": "Identifies trade-offs between user needs, business goals, and delivery constraints. Focuses on prioritization, stakeholder alignment, and feature scope clarity."
+      },
+      {
+        "role": "Quality Assurance (QA) Engineer",
+        "disciplinary_background": "Software Testing, Quality Engineering",
+        "perspective": "Evaluates design decisions from the lens of testability, reliability, and coverage. Highlights process gaps that may introduce defects or reduce test efficiency."
+      }
+}

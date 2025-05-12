@@ -1,0 +1,218 @@
+{
+    "target_text": " The agile process itself is subject to continuous improvements. We use retrospectives to continuously reflect on the way we work to become better at what we do and ultimately better at delivering quality software. That’s the process.",
+    "Annotators": [
+        {
+            "role": "Software Developer",
+            "disciplinary_background": "Computer Science",
+            "codebook": [
+                {
+                    "code": "agile_continuous_improvement",
+                    "justification": "The text highlights the iterative nature of agile methodologies, emphasizing retrospectives as a tool for ongoing process refinement, which is a core principle in agile development."
+                },
+                {
+                    "code": "quality_software_delivery",
+                    "justification": "The focus on delivering quality software aligns with software development best practices, where continuous reflection aims to enhance product outcomes."
+                },
+                {
+                    "code": "retrospectives_as_tool",
+                    "justification": "Retrospectives are explicitly mentioned as a mechanism for self-assessment and improvement, a key practice in agile teams to identify and address inefficiencies."
+                }
+            ]
+        },
+        {
+            "role": "UX/UI Designer",
+            "disciplinary_background": "Human-Computer Interaction",
+            "codebook": [
+                {
+                    "code": "iterative_improvement",
+                    "justification": "The text emphasizes continuous reflection and improvement, which aligns with UX/UI design principles of iterative testing and refinement to enhance user experience."
+                },
+                {
+                    "code": "user_centric_process",
+                    "justification": "The focus on 'delivering quality software' reflects a user-centric approach, mirroring UX/UI design's priority on creating products that meet user needs and expectations."
+                },
+                {
+                    "code": "collaborative_reflection",
+                    "justification": "The mention of 'retrospectives' highlights a collaborative approach to evaluating workflows, similar to UX/UI design practices where team feedback is crucial for optimizing interfaces."
+                }
+            ]
+        },
+        {
+            "role": "Project Manager",
+            "disciplinary_background": "Management",
+            "codebook": [
+                {
+                    "code": "Continuous Improvement",
+                    "justification": "The text emphasizes the iterative nature of agile processes, highlighting the importance of retrospectives for ongoing refinement. This aligns with project management's focus on process efficiency and adaptability."
+                },
+                {
+                    "code": "Quality Delivery",
+                    "justification": "The text explicitly links process improvements to delivering quality software, which is a core project management objective—ensuring outputs meet stakeholder expectations and standards."
+                },
+                {
+                    "code": "Reflective Practice",
+                    "justification": "The mention of retrospectives underscores the value of structured reflection in agile methodologies, a key practice in project management for identifying lessons learned and optimizing team performance."
+                }
+            ]
+        },
+        {
+            "role": "Quality Assurance Engineer",
+            "disciplinary_background": "Software Engineering",
+            "codebook": [
+                {
+                    "code": "continuous_improvement",
+                    "justification": "The text emphasizes the importance of ongoing refinement in agile processes, which aligns with QA's focus on iterative testing and defect reduction to enhance software reliability."
+                },
+                {
+                    "code": "retrospectives_as_qa_tool",
+                    "justification": "Retrospectives are highlighted as a mechanism for reflection, directly relevant to QA's use of post-release reviews to identify testing gaps and improve future test coverage."
+                },
+                {
+                    "code": "quality_delivery_focus",
+                    "justification": "The end goal of 'delivering quality software' resonates with QA's core objective of ensuring product stability and meeting quality benchmarks."
+                }
+            ]
+        },
+        {
+            "role": "DevOps Engineer",
+            "disciplinary_background": "Systems Engineering",
+            "codebook": [
+                {
+                    "code": "continuous_improvement",
+                    "justification": "The text emphasizes iterative refinement of processes, which aligns with DevOps principles of continuous feedback and optimization in deployment pipelines."
+                },
+                {
+                    "code": "retrospectives_as_feedback_loop",
+                    "justification": "Retrospectives act as a structured feedback mechanism, critical for CI/CD pipelines to identify inefficiencies and enhance system performance."
+                },
+                {
+                    "code": "quality_delivery_focus",
+                    "justification": "The end goal of 'delivering quality software' resonates with DevOps' emphasis on automation and monitoring to ensure reliable and scalable deployments."
+                }
+            ]
+        }
+    ],
+    "Makers": {
+        "decision maker": {
+            "Agreement Across Perspectives": [
+                {
+                    "Agreement": "Continuous Improvement",
+                    "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, QA Engineer, DevOps Engineer) emphasize the importance of continuous improvement in their codes (e.g., 'agile_continuous_improvement', 'iterative_improvement', 'Continuous Improvement', 'continuous_improvement'). While the phrasing varies slightly, the core concept of iterative refinement is universally acknowledged. The Software Developer ties it to agile methodologies, the UX/UI Designer links it to user experience refinement, the Project Manager frames it as process efficiency, and the QA/DevOps Engineers connect it to testing/deployment optimization."
+                },
+                {
+                    "Agreement": "Retrospectives as a Tool",
+                    "justification": "All roles explicitly mention retrospectives as a mechanism for reflection and improvement, though with role-specific nuances. The Software Developer and Project Manager focus on agile process refinement ('retrospectives_as_tool', 'Reflective Practice'), the UX/UI Designer highlights collaboration ('collaborative_reflection'), the QA Engineer links it to testing gaps ('retrospectives_as_qa_tool'), and the DevOps Engineer frames it as a feedback loop for CI/CD ('retrospectives_as_feedback_loop')."
+                },
+                {
+                    "Agreement": "Quality Delivery",
+                    "justification": "All roles converge on the end goal of delivering quality software, but with different emphases. The Software Developer and Project Manager use near-identical phrasing ('quality_software_delivery', 'Quality Delivery'), the UX/UI Designer ties it to user-centric outcomes ('user_centric_process'), while the QA and DevOps Engineers focus on reliability/scalability ('quality_delivery_focus')."
+                }
+            ],
+            "Disagreements or Nuance Differences": [
+                {
+                    "Disagreement": "Scope of Improvement",
+                    "justification": "The Software Developer and Project Manager focus broadly on agile processes, while the UX/UI Designer narrows to user experience, and the QA/DevOps Engineers target testing/deployment pipelines. This reflects divergent priorities: process vs. user vs. technical outcomes."
+                },
+                {
+                    "Disagreement": "Role of Retrospectives",
+                    "justification": "The UX/UI Designer uniquely frames retrospectives as 'collaborative_reflection' for team feedback on interfaces, whereas others treat them as generic agile/QA/DevOps tools. This shows a divide between human-centered (UX) and systems-centered (others) interpretations."
+                },
+                {
+                    "Disagreement": "Quality Definition",
+                    "justification": "The UX/UI Designer's 'user_centric_process' implies quality is user satisfaction, while the QA Engineer's 'quality_delivery_focus' emphasizes defect reduction, and the DevOps Engineer links it to deployment reliability. The Project Manager bridges these by referencing 'stakeholder expectations.'"
+                }
+            ],
+            "Final Coding Decision": [
+                {
+                    "code": "continuous_improvement",
+                    "agreement": "all",
+                    "justification": "Universal agreement on iterative refinement, though role-specific implementations vary. This umbrella term captures agile, UX, QA, and DevOps perspectives."
+                },
+                {
+                    "code": "retrospectives_as_feedback_mechanism",
+                    "agreement": "most",
+                    "justification": "Adopts the DevOps Engineer's 'feedback loop' framing as it generalizes across roles (agile process, testing, collaboration) better than narrower alternatives like 'qa_tool' or 'collaborative_reflection.'"
+                },
+                {
+                    "code": "quality_outcome_focus",
+                    "agreement": "most",
+                    "justification": "Blends the Project Manager's 'Quality Delivery' with the UX/UI Designer's user-centricity and QA/DevOps' technical focus, avoiding overly narrow definitions."
+                }
+            ],
+            "IRR Calculation": {
+                "Jaccard Similarity": {
+                    "LLM1 vs LLM2": 0.67,
+                    "LLM1 vs LLM3": 0.75,
+                    "LLM2 vs LLM3": 0.6,
+                    "LLM1 vs LLM4": 0.8,
+                    "LLM1 vs LLM5": 0.78,
+                    "LLM2 vs LLM4": 0.67,
+                    "LLM2 vs LLM5": 0.65,
+                    "LLM3 vs LLM4": 0.83,
+                    "LLM3 vs LLM5": 0.82,
+                    "LLM4 vs LLM5": 0.92
+                },
+                "Fleiss' Kappa": 0.74,
+                "Interpretation": "Substantial agreement overall, with highest alignment between Project Manager (LLM3), QA Engineer (LLM4), and DevOps Engineer (LLM5) due to shared technical focus. UX/UI Designer (LLM2) shows lower overlap, reflecting unique user-centric priorities."
+            }
+        },
+        "evaluate maker": {
+            "target_text": "The text highlights the iterative nature of agile methodologies, emphasizing retrospectives as a tool for ongoing process refinement, which is a core principle in agile development. The focus on delivering quality software aligns with software development best practices, where continuous reflection aims to enhance product outcomes. Retrospectives are explicitly mentioned as a mechanism for self-assessment and improvement, a key practice in agile teams to identify and address inefficiencies.",
+            "annotations": {
+                "Software Developer": [
+                    "agile_continuous_improvement",
+                    "quality_software_delivery",
+                    "retrospectives_as_tool"
+                ],
+                "UX/UI Designer": [
+                    "iterative_improvement",
+                    "user_centric_process",
+                    "collaborative_reflection"
+                ],
+                "Project Manager": [
+                    "Continuous Improvement",
+                    "Quality Delivery",
+                    "Reflective Practice"
+                ],
+                "Quality Assurance Engineer": [
+                    "continuous_improvement",
+                    "retrospectives_as_qa_tool",
+                    "quality_delivery_focus"
+                ],
+                "DevOps Engineer": [
+                    "continuous_improvement",
+                    "retrospectives_as_feedback_loop",
+                    "quality_delivery_focus"
+                ]
+            },
+            "irr_metrics": {
+                "jaccard_similarity": {
+                    "Software Developer_vs_UX/UI Designer": 0.0,
+                    "Software Developer_vs_Project Manager": 0.0,
+                    "Software Developer_vs_Quality Assurance Engineer": 0.0,
+                    "Software Developer_vs_DevOps Engineer": 0.0,
+                    "UX/UI Designer_vs_Project Manager": 0.0,
+                    "UX/UI Designer_vs_Quality Assurance Engineer": 0.0,
+                    "UX/UI Designer_vs_DevOps Engineer": 0.0,
+                    "Project Manager_vs_Quality Assurance Engineer": 0.0,
+                    "Project Manager_vs_DevOps Engineer": 0.0,
+                    "Quality Assurance Engineer_vs_DevOps Engineer": 0.6666666666666666,
+                    "average": 0.06666666666666667
+                },
+                "cohen_kappa": {
+                    "Software Developer_vs_UX/UI Designer": 0.0,
+                    "Software Developer_vs_Project Manager": 0.0,
+                    "Software Developer_vs_Quality Assurance Engineer": 0.0,
+                    "Software Developer_vs_DevOps Engineer": 0.0,
+                    "UX/UI Designer_vs_Project Manager": 0.0,
+                    "UX/UI Designer_vs_Quality Assurance Engineer": 0.0,
+                    "UX/UI Designer_vs_DevOps Engineer": 0.0,
+                    "Project Manager_vs_Quality Assurance Engineer": 0.0,
+                    "Project Manager_vs_DevOps Engineer": 0.0,
+                    "Quality Assurance Engineer_vs_DevOps Engineer": 0.6666666666666666,
+                    "average": 0.06666666666666667
+                }
+            }
+        }
+    }
+}

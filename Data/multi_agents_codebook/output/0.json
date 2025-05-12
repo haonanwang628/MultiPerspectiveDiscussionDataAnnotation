@@ -1,0 +1,36 @@
+{
+  "theme": "",
+  "round 1":
+  {
+      "debate guide": "",
+      "Debaters":
+    {
+      "Affirmative": "response",
+      "Negative": ""
+    },
+    "Judge":""
+  },
+
+  "round 2":
+  {
+      "debate guide": "",
+      "Debaters":
+    {
+      "Affirmative": "",
+      "Negative": ""
+    },
+    "Judge":""
+  },
+
+  "round 3":
+  {
+      "debate guide": "",
+      "Debaters":
+    {
+      "Affirmative": "",
+      "Negative": ""
+    },
+    "Judge":""
+  },
+  "Judge Consensus":""
+}

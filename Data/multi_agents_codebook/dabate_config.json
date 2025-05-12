@@ -1,0 +1,15 @@
+{
+  "theme": "",
+  "Affirmative": {
+    "meta prompt": "",
+    "players_num": ""
+  },
+  "Negative": {
+    "meta prompt": "",
+    "players_num": ""
+  },
+  "Judge":{
+    "meta prompt": "",
+    "players_num": ""
+  }
+}
