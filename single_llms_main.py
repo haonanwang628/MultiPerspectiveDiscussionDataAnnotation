@@ -41,8 +41,9 @@ class SingleDabate:
         # list: [{"role": "" , "disciplinary_background":"", "codebook":[{"code":"", "justification":""}]}]
         self.Annotators_str, self.Annotators = self.single_agents_codebook(self.Annotators_meta)
 
+        ###TRASH
         # response maker
-        self.makers = self.single_agents_maker( self.Annotators_str)
+        # self.makers = self.single_agents_maker(self.Annotators_str)
 
     def single_agents_init(self):
         role = Agent(
@@ -123,7 +124,8 @@ class SingleDabate:
 
     def load_json(self, id):
         save_json_path = os.path.join(self.output, f"{id}.json")
-        result = {"target_text": self.config["target_text"], "Annotators": self.Annotators, "Makers": self.makers}
+        # result = {"target_text": self.config["target_text"], "Annotators": self.Annotators, "Makers": self.makers}
+        result = {"target_text": self.config["target_text"], "Annotators": self.Annotators}
         json_code = json.dumps(result, indent=4, ensure_ascii=False)
         with open(save_json_path, "w") as file:
             file.write(json_code)
@@ -154,7 +156,7 @@ if __name__ == "__main__":
     # raw_text_path = os.path.join(root_path, "Data", "processed", "raw_text.txt")
     # code_config_path = os.path.join(root_path, "Data", "single_agents_codebook", "code_config.json")
     # meta_prompt_config_path = os.path.join(root_path, "Data", "single_agents_codebook", "meta_prompt_config.json")
-    with open(os.path.join(args.output_dir, "..", "config.json"), "r", encoding="utf-8") as f:
+    with open(os.path.join(args.output_dir, "..", "config_1.json"), "r", encoding="utf-8") as f:
         config = json.load(f)
     with open(args.input_file, "r") as f:
         texts = f.readlines()

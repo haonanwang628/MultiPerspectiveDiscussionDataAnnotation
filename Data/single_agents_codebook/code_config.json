@@ -1,5 +1,0 @@
-{
-  "target_text": "",
-  "role_prompt": "You are a Role: ^^^role^^^\nDisciplinary Background: ^^^Disciplinary Background^^^\nPerspective:^^^Perspective^^^\n^^^meta_prompt^^^",
-  "maker_prompt": [{"decision maker": "","response": ""}, {"evaluate maker": "", "response": ""}]
-}
