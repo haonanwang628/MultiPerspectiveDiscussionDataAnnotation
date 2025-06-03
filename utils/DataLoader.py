@@ -4,8 +4,8 @@ import urllib.request
 from tqdm import tqdm
 
 # 1. 设置路径
-json_path = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\6624064.json"
-save_dir = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\orgin"
+json_path = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\Scrum-interviews.json"
+save_dir = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\orgin\Scrum-interviews"
 os.makedirs(save_dir, exist_ok=True)
 
 # 2. 读取 JSON 文件

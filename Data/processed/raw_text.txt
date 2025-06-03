@@ -1,1 +1,0 @@
-Software Engineering, The agile process itself is subject to continuous improvements. We use retrospectives to continuously reflect on the way we work to become better at what we do and ultimately better at delivering quality software. That’s the process.

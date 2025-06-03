@@ -1,0 +1,33 @@
+{
+    "target_text": "\"But for the purpose of a definition, I would say quality takes place in the process level and the software level.\"",
+    "codebook": {
+        "Agreed": [
+            {
+                "code": "process_level_quality",
+                "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, QA Engineer, DevOps Engineer) emphasize quality at the process level, aligning with methodologies, workflows, and systematic controls to ensure consistency and efficiency."
+            },
+            {
+                "code": "software_level_quality",
+                "justification": "All roles reference quality at the software/product level, focusing on tangible outputs like functionality, usability, performance, and stakeholder expectations."
+            },
+            {
+                "code": "holistic_quality_definition",
+                "justification": "Multiple roles (UX/UI Designer, DevOps Engineer, QA Engineer) frame quality as spanning both process and output, reflecting an integrated view of development and delivery."
+            }
+        ],
+        "Disagreed": [
+            {
+                "code": "definition_scope",
+                "justification": "Unique to Software Developer, this code focuses on narrowing definitions for technical precision, while others assume broader contextual interpretations."
+            },
+            {
+                "code": "deliverable_level_quality",
+                "justification": "Project Manager's term for 'software level' quality, which conflicts slightly in granularity with other roles' broader 'software level' focus (e.g., UX/UI's emphasis on user experience)."
+            },
+            {
+                "code": "quality_dimensions",
+                "justification": "Software Developer's specific distinction between process/software quality is more granular than other roles' implicit treatment of these as unified concepts."
+            }
+        ]
+    }
+}

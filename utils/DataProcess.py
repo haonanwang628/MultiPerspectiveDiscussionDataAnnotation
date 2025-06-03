@@ -3,8 +3,8 @@ import json
 import os
 
 # 设置 Excel 文件路径
-excel_path = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\orgin\Data Analysis - First Cycle - RQ2 - Final.xlsx"  # 👈 请替换为你的 Excel 文件名
-output_json = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\processed\First Cycle - RQ2.json"
+excel_path = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\orgin\Data Analysis - First Cycle - RQ1 - Final.xlsx"  # 👈 请替换为你的 Excel 文件名
+output_json = r"F:\Work\Debate\MultiAgentDabateDataAnnotation\Data\processed\First Cycle - RQ1.json"
 
 # === 加载 Excel 文件和参与者工作表 ===
 xls = pd.ExcelFile(excel_path)
@@ -27,6 +27,8 @@ for sheet in participant_sheets:
 
         for _, row in df.iterrows():
             chunk = str(row[data_chunk_col]).strip()
+            if chunk == "Data chunk":
+                continue
             code_block = str(row[code_col]).strip()
             if chunk and code_block:
                 for code in code_block.split("\n"):

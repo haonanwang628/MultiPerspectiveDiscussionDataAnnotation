@@ -1,0 +1,95 @@
+{
+    "target_text": "\"But for the purpose of a definition, I would say quality takes place in the process level and the software level.\"",
+    "Annotators": [
+        {
+            "role": "Software Developer",
+            "disciplinary_background": "Computer Science / Software Engineering",
+            "codebook": [
+                {
+                    "code": "quality_dimensions",
+                    "justification": "The text distinguishes between 'process level' and 'software level' quality, which aligns with software engineering principles where quality is assessed both in development practices (process) and the final product (software)."
+                },
+                {
+                    "code": "definition_scope",
+                    "justification": "The phrase 'for the purpose of a definition' indicates an intentional narrowing of focus, relevant to developers who often need precise, context-specific definitions for technical discussions or documentation."
+                },
+                {
+                    "code": "process_quality",
+                    "justification": "Mentions 'process level' quality, a key concern in software development, referring to methodologies like Agile or DevOps that ensure consistent quality through structured workflows."
+                }
+            ]
+        },
+        {
+            "role": "UX/UI Designer",
+            "disciplinary_background": "Human-Computer Interaction / Design",
+            "codebook": [
+                {
+                    "code": "process_level_quality",
+                    "justification": "The mention of 'process level' highlights the importance of workflow and methodology in achieving quality, which aligns with UX/UI design principles where iterative processes (e.g., prototyping, testing) are critical."
+                },
+                {
+                    "code": "software_level_quality",
+                    "justification": "The 'software level' refers to the tangible output (e.g., interface, interactions), which is central to UX/UI design. Quality here implies usability, accessibility, and aesthetic coherence."
+                },
+                {
+                    "code": "holistic_quality_definition",
+                    "justification": "The text frames quality as spanning both process and output, reflecting a UX/UI mindset where user experience is shaped by both design methods and final product execution."
+                }
+            ]
+        },
+        {
+            "role": "Project Manager",
+            "disciplinary_background": "Management / Business Administration",
+            "codebook": [
+                {
+                    "code": "Process-Level Quality",
+                    "justification": "The text highlights quality at the process level, which aligns with project management's focus on optimizing workflows and ensuring efficiency in project execution."
+                },
+                {
+                    "code": "Deliverable-Level Quality",
+                    "justification": "The mention of quality at the software level reflects the importance of ensuring the final product meets stakeholder expectations, a key concern in project delivery."
+                },
+                {
+                    "code": "Quality Definition",
+                    "justification": "The text attempts to define quality, which is critical for project managers to establish clear standards and metrics for success in both processes and outputs."
+                }
+            ]
+        },
+        {
+            "role": "Quality Assurance Engineer",
+            "disciplinary_background": "Computer Science / Software Testing",
+            "codebook": [
+                {
+                    "code": "process_level_quality",
+                    "justification": "The text highlights quality at the process level, which aligns with QA practices like SDLC adherence, test planning, and continuous integration to ensure systematic quality control."
+                },
+                {
+                    "code": "software_level_quality",
+                    "justification": "The mention of quality at the software level reflects core QA focus areas such as functional testing, performance validation, and defect detection in the final product."
+                },
+                {
+                    "code": "quality_definition_scope",
+                    "justification": "The text frames quality as a multi-layered concept (process + product), which is critical for QA strategies to address both development rigor and end-user outcomes."
+                }
+            ]
+        },
+        {
+            "role": "DevOps Engineer",
+            "disciplinary_background": "Computer Science / Systems Engineering",
+            "codebook": [
+                {
+                    "code": "process_level_quality",
+                    "justification": "The text highlights quality at the process level, which aligns with DevOps principles of optimizing deployment pipelines and CI/CD workflows for reliability and efficiency."
+                },
+                {
+                    "code": "software_level_quality",
+                    "justification": "Emphasizing quality at the software level resonates with DevOps practices like infrastructure as code (IaC) and automated testing, ensuring robust and scalable software deployments."
+                },
+                {
+                    "code": "holistic_quality_definition",
+                    "justification": "The dual focus on process and software levels reflects a DevOps mindset where quality is a cross-cutting concern spanning development, deployment, and operations."
+                }
+            ]
+        }
+    ]
+}
