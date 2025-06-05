@@ -2,6 +2,7 @@ from utils.Agent import Agent
 from utils.Function import *
 import streamlit as st
 
+
 class RoleAgent:
     def __init__(self,
                  model_name='deepseek-chat',
@@ -125,7 +126,6 @@ class AgreeAgent:
 
         self.config = config
 
-
         # "agreement": [{"code:"", justification:""}] , disagreement":"",
         self.view = self.agree_agent_codebook()
 
@@ -138,7 +138,8 @@ class AgreeAgent:
             sleep_time=self.sleep_time,
             base_url=self.base_url
         )
-        agree_agent_infer = self.config["agree_infer"]["system"].replace("[code and justifications]", self.config["Annotators"])
+        agree_agent_infer = self.config["agree_infer"]["system"].replace("[code and justifications]",
+                                                                         self.config["Annotators"])
         agree.set_meta_prompt(agree_agent_infer)
         agree.event(self.config["agree_infer"]["user"])
         view = agree.ask()
@@ -186,10 +187,14 @@ class DebateAgent:
 
         self.config = config
 
+        # init debate
         self.affirmative, self.negative, self.judge = self.debate_agents_init()
 
+        # final codebook
+        self.codebook = self.debate()
+
     def debate_agents_init(self):
-        affirmative = Agent(
+        aff = Agent(
             model_name=self.model_name,
             name="Affirmative Debater",
             temperature=self.temperature,
@@ -197,7 +202,7 @@ class DebateAgent:
             sleep_time=self.sleep_time,
             base_url=self.base_url
         )
-        negative = Agent(
+        neg = Agent(
             model_name=self.model_name,
             name="Negative Debater",
             temperature=self.temperature,
@@ -213,5 +218,82 @@ class DebateAgent:
             sleep_time=self.sleep_time,
             base_url=self.base_url
         )
-        return affirmative, negative, judge
+        meta_prompt = self.config["meta_prompt"].replace("[Target Text]", self.config["target_text"]).replace(
+            "[code and justification]", str(self.config["Disagreed"]))
+        aff.set_meta_prompt(meta_prompt)
+        neg.set_meta_prompt(meta_prompt)
+        judge.set_meta_prompt(meta_prompt)
+        return aff, neg, judge
+
+    def debate(self):
+        for _, codebook in enumerate(self.config["Disagreed"]):
+            code, justification = codebook["code"], codebook["justification"]
+
+            # round1
+            self.affirmative.event(
+                self.config["Affirmative Debater"]["round 1"].replace("[code]", code).replace("[justification]",
+                                                                                              justification))
+            aff_r1 = self.affirmative.ask()
+            self.affirmative.memory(aff_r1, True)
+
+            self.negative.event(
+                self.config["Negative Debater"]["round 1"].replace("[code]", code)
+                .replace("[justification]", justification).replace("opponent_round1", aff_r1))
+            neg_r1 = self.negative.ask()
+            self.negative.memory(neg_r1, True)
+
+            # round2
+            self.affirmative.event(self.config["Affirmative Debater"]["round 2"].replace("opponent_round1", neg_r1))
+            aff_r2 = self.affirmative.ask()
+            self.affirmative.memory(aff_r2, True)
+
+            self.negative.event(self.config["Negative Debater"]["round 2"].replace("opponent_round2", aff_r2))
+            neg_r2 = self.negative.ask()
+            self.negative.memory(neg_r2, True)
+
+            # closing
+            self.affirmative.event(self.config["Affirmative Debater"]["closing"])
+            aff_close = self.affirmative.ask()
+            self.affirmative.memory(aff_close, True)
+
+            self.negative.event(self.config["Negative Debater"]["closing"])
+            neg_close = self.negative.ask()
+            self.negative.memory(neg_close, True)
+
+            # self.judge
+            self.judge.event(
+                self.config["Judge"].replace("AFF_R1", aff_r1).replace("AFF_R2", aff_r2).replace("NEG_R1", neg_r1)
+                .replace("NEG_R2", neg_r2).replace("AFF_CLOSE", aff_close).replace("NEG_CLOSE", neg_close))
+            jud = self.judge.ask()
+            self.judge.memory(jud, True)
+
+        return self.to_codebook(self.judge.memory_lst)
+
+
+    @staticmethod
+    def to_codebook(judge_response):
+        codebook = []
+        for _, response in enumerate(judge_response):
+            if response["role"] == "assistant":
+                content = json.loads(response["content"].replace('```', '').replace('json', '').replace('\n', ''))
+                if content["Resolution"] != "Drop":
+                    codebook.append({"code": content["final_code"],
+                                     "justification": content["briefly explain"]
+                                     })
+        return codebook
+
+    def load_json(self, id):
+        output_dir = os.path.join(self.output, "debate-agent")
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        save_json_path = os.path.join(output_dir, f"debate_response{id}.json")
+        result = {"target_text": self.config["target_text"], "Disagreed": self.config["Disagreed"],
+                  "Affirmative Debater": self.affirmative.memory_lst,
+                  "Negative Debater": self.negative.memory_lst,
+                  "Judge": self.judge.memory_lst,
+                  "Debate Result": self.codebook
+                  }
+        json_code = json.dumps(result, indent=4, ensure_ascii=False)
+        with open(save_json_path, "w") as file:
+            file.write(json_code)
 

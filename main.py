@@ -11,18 +11,26 @@ if __name__ == "__main__":
     texts = import_json(args.input_file)
     role_config = import_json(os.path.join(args.config_dir, "role_config.json"))
     agree_config = import_json(os.path.join(args.config_dir, "agree_config.json"))
+    debate_config = import_json(os.path.join(args.config_dir, "debate_config.json"))
+
+    codebook_dir = os.path.join(args.output_dir, "Scrum-interviews-Codebook")
+    if not os.path.exists(codebook_dir):
+        os.makedirs(codebook_dir)
+
     for i, text in enumerate(texts):
+
         if i == 1:
             break
         role_config["target_text"] = text["data_chunk"]
         agree_config["target_text"] = text["data_chunk"]
+        debate_config["target_text"] = text["data_chunk"]
         roles = Agents.RoleAgent(model_name=args.model_name,
-                                  temperature=args.temperature,
-                                  config=role_config,
-                                  output=args.output_dir,
-                                  api_key=args.api_key,
-                                  sleep_time=0,
-                                  base_url=args.base_url)
+                                 temperature=args.temperature,
+                                 config=role_config,
+                                 output=args.output_dir,
+                                 api_key=args.api_key,  # []
+                                 sleep_time=0,
+                                 base_url=args.base_url)
         agree_config["Annotators"] = roles.Annotators_str
         agree = Agents.AgreeAgent(model_name=args.model_name,
                                   temperature=args.temperature,
@@ -31,5 +39,23 @@ if __name__ == "__main__":
                                   api_key=args.api_key,
                                   sleep_time=0,
                                   base_url=args.base_url)
+        debate_config["Disagreed"] = agree.view["Disagreed"]
+        debate = Agents.DebateAgent(model_name=args.model_name,
+                                    temperature=args.temperature,
+                                    config=debate_config,
+                                    output=args.output_dir,
+                                    api_key=args.api_key,
+                                    sleep_time=0,
+                                    base_url=args.base_url)
         roles.load_json(i)
         agree.load_json(i)
+        debate.load_json(i)
+
+        codebook = [*agree.view["Agreed"], *debate.codebook]
+        save_json_path = os.path.join(codebook_dir, f"{i}.json")
+        result = {"target_text": text["data_chunk"],
+                  "codebook": codebook
+                  }
+        json_code = json.dumps(result, indent=4, ensure_ascii=False)
+        with open(save_json_path, "w") as file:
+            file.write(json_code)

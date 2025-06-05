@@ -4,29 +4,29 @@
         "Agreed": [
             {
                 "code": "process_level_quality",
-                "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, QA Engineer, DevOps Engineer) emphasize quality at the process level, aligning with methodologies, workflows, and systematic controls to ensure consistency and efficiency."
+                "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, QA Engineer, DevOps Engineer) emphasize quality at the process level, highlighting workflows, methodologies, and CI/CD pipelines as critical for ensuring overall quality."
             },
             {
                 "code": "software_level_quality",
-                "justification": "All roles reference quality at the software/product level, focusing on tangible outputs like functionality, usability, performance, and stakeholder expectations."
+                "justification": "All roles acknowledge quality at the software level, focusing on attributes like maintainability, usability, performance, and correctness in the final product or deliverables."
             },
             {
-                "code": "holistic_quality_definition",
-                "justification": "Multiple roles (UX/UI Designer, DevOps Engineer, QA Engineer) frame quality as spanning both process and output, reflecting an integrated view of development and delivery."
+                "code": "quality_dimensions",
+                "justification": "Multiple roles (Software Developer, UX/UI Designer, QA Engineer) frame quality as multi-dimensional, requiring both process and product perspectives to ensure holistic quality assurance."
             }
         ],
         "Disagreed": [
             {
-                "code": "definition_scope",
-                "justification": "Unique to Software Developer, this code focuses on narrowing definitions for technical precision, while others assume broader contextual interpretations."
+                "code": "quality_definition_scope",
+                "justification": "Unique to the QA Engineer, this code focuses narrowly on the scope of quality definitions, which other roles do not explicitly address. This reflects a QA-specific emphasis on defining clear metrics and standards."
             },
             {
-                "code": "deliverable_level_quality",
-                "justification": "Project Manager's term for 'software level' quality, which conflicts slightly in granularity with other roles' broader 'software level' focus (e.g., UX/UI's emphasis on user experience)."
+                "code": "Deliverable-Level Quality",
+                "justification": "Used only by the Project Manager, this term diverges slightly from 'software_level_quality' by emphasizing stakeholder expectations rather than technical attributes, reflecting a management perspective."
             },
             {
-                "code": "quality_dimensions",
-                "justification": "Software Developer's specific distinction between process/software quality is more granular than other roles' implicit treatment of these as unified concepts."
+                "code": "Quality Definition",
+                "justification": "Exclusive to the Project Manager, this code centers on establishing standards for success, which other roles implicitly assume but do not explicitly code, highlighting a managerial focus on planning and evaluation."
             }
         ]
     }
