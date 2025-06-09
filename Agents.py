@@ -4,6 +4,7 @@ import streamlit as st
 
 
 class RoleAgent:
+
     def __init__(self,
                  model_name='deepseek-chat',
                  temperature=0,
@@ -34,11 +35,11 @@ class RoleAgent:
 
         # 1、init: Role Inference Stage
         # list: [{"role": "" , "disciplinary_background":"", "perspective":""} ...]
-        self.Annotators_meta = self.single_agents_init()
+        # self.Annotators_meta = self.single_agents_init()
 
         # 2、Agents/llms generate codebook
         # list: [{"role": "" , "disciplinary_background":"", "codebook":[{"code":"", "justification":""}]}]
-        self.Annotators_str, self.Annotators = self.single_agents_codebook(self.Annotators_meta)
+        # self.Annotators_str, self.Annotators = self.single_agents_codebook(self.Annotators_meta)
 
     def single_agents_init(self):
         role = Agent(
@@ -85,13 +86,13 @@ class RoleAgent:
         # [{"role": "" , "disciplinary_background":"", "codebook":[{"code":"", "justification":""}]}]
         return Annotators_str, Annotators
 
-    def load_json(self, id):
+    def load_json(self, id, Annotators):
         output_dir = os.path.join(self.output, "role-agent")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         save_json_path = os.path.join(output_dir, f"role_response{id}.json")
         # result = {"target_text": self.config["target_text"], "Annotators": self.Annotators, "Makers": self.makers}
-        result = {"target_text": self.config["target_text"], "Annotators": self.Annotators}
+        result = {"target_text": self.config["target_text"], "Annotators": Annotators}
         json_code = json.dumps(result, indent=4, ensure_ascii=False)
         with open(save_json_path, "w") as file:
             file.write(json_code)
@@ -127,7 +128,7 @@ class AgreeAgent:
         self.config = config
 
         # "agreement": [{"code:"", justification:""}] , disagreement":"",
-        self.view = self.agree_agent_codebook()
+        # self.view = self.agree_agent_codebook()
 
     def agree_agent_codebook(self):
         agree = Agent(
@@ -147,12 +148,12 @@ class AgreeAgent:
 
         return to_json(view)  # "agreement": [{"code:"", justification:""}] , disagreement":"",
 
-    def load_json(self, id):
+    def load_json(self, id, view):
         output_dir = os.path.join(self.output, "agree-agent")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         save_json_path = os.path.join(output_dir, f"agree_response{id}.json")
-        result = {"target_text": self.config["target_text"], "codebook": self.view}
+        result = {"target_text": self.config["target_text"], "codebook": view}
         json_code = json.dumps(result, indent=4, ensure_ascii=False)
         with open(save_json_path, "w") as file:
             file.write(json_code)
@@ -188,36 +189,23 @@ class DebateAgent:
         self.config = config
 
         # init debate
-        self.affirmative, self.negative, self.judge = self.debate_agents_init()
+        # aff, neg, judge = self.debate_agents_init()
 
         # final codebook
-        self.codebook = self.debate()
+        # self.codebook = self.debate()
 
     def debate_agents_init(self):
-        aff = Agent(
-            model_name=self.model_name,
-            name="Affirmative Debater",
-            temperature=self.temperature,
-            api_key=self.api_key,
-            sleep_time=self.sleep_time,
-            base_url=self.base_url
-        )
-        neg = Agent(
-            model_name=self.model_name,
-            name="Negative Debater",
-            temperature=self.temperature,
-            api_key=self.api_key,
-            sleep_time=self.sleep_time,
-            base_url=self.base_url
-        )
-        judge = Agent(
-            model_name=self.model_name,
-            name="Judge",
-            temperature=self.temperature,
-            api_key=self.api_key,
-            sleep_time=self.sleep_time,
-            base_url=self.base_url
-        )
+        aff, neg, judge = [
+            Agent(
+                model_name=self.model_name,
+                name=name,
+                temperature=self.temperature,
+                api_key=self.api_key,
+                sleep_time=self.sleep_time,
+                base_url=self.base_url
+            )
+            for name in ["Affirmative Debater", "Negative Debater", "Judge"]
+        ]
         meta_prompt = self.config["meta_prompt"].replace("[Target Text]", self.config["target_text"]).replace(
             "[code and justification]", str(self.config["Disagreed"]))
         aff.set_meta_prompt(meta_prompt)
@@ -226,48 +214,49 @@ class DebateAgent:
         return aff, neg, judge
 
     def debate(self):
+        aff, neg, judge = self.debate_agents_init()
         for _, codebook in enumerate(self.config["Disagreed"]):
             code, justification = codebook["code"], codebook["justification"]
 
             # round1
-            self.affirmative.event(
+            aff.event(
                 self.config["Affirmative Debater"]["round 1"].replace("[code]", code).replace("[justification]",
                                                                                               justification))
-            aff_r1 = self.affirmative.ask()
-            self.affirmative.memory(aff_r1, True)
+            aff_r1 = aff.ask()
+            aff.memory(aff_r1, True)
 
-            self.negative.event(
+            neg.event(
                 self.config["Negative Debater"]["round 1"].replace("[code]", code)
                 .replace("[justification]", justification).replace("opponent_round1", aff_r1))
-            neg_r1 = self.negative.ask()
-            self.negative.memory(neg_r1, True)
+            neg_r1 = neg.ask()
+            neg.memory(neg_r1, True)
 
             # round2
-            self.affirmative.event(self.config["Affirmative Debater"]["round 2"].replace("opponent_round1", neg_r1))
-            aff_r2 = self.affirmative.ask()
-            self.affirmative.memory(aff_r2, True)
+            aff.event(self.config["Affirmative Debater"]["round 2"].replace("opponent_round1", neg_r1))
+            aff_r2 = aff.ask()
+            aff.memory(aff_r2, True)
 
-            self.negative.event(self.config["Negative Debater"]["round 2"].replace("opponent_round2", aff_r2))
-            neg_r2 = self.negative.ask()
-            self.negative.memory(neg_r2, True)
+            neg.event(self.config["Negative Debater"]["round 2"].replace("opponent_round2", aff_r2))
+            neg_r2 = neg.ask()
+            neg.memory(neg_r2, True)
 
             # closing
-            self.affirmative.event(self.config["Affirmative Debater"]["closing"])
-            aff_close = self.affirmative.ask()
-            self.affirmative.memory(aff_close, True)
+            aff.event(self.config["Affirmative Debater"]["closing"])
+            aff_close = aff.ask()
+            aff.memory(aff_close, True)
 
-            self.negative.event(self.config["Negative Debater"]["closing"])
-            neg_close = self.negative.ask()
-            self.negative.memory(neg_close, True)
+            neg.event(self.config["Negative Debater"]["closing"])
+            neg_close = neg.ask()
+            neg.memory(neg_close, True)
 
             # self.judge
-            self.judge.event(
+            judge.event(
                 self.config["Judge"].replace("AFF_R1", aff_r1).replace("AFF_R2", aff_r2).replace("NEG_R1", neg_r1)
                 .replace("NEG_R2", neg_r2).replace("AFF_CLOSE", aff_close).replace("NEG_CLOSE", neg_close))
-            jud = self.judge.ask()
-            self.judge.memory(jud, True)
-
-        return self.to_codebook(self.judge.memory_lst)
+            jud = judge.ask()
+            judge.memory(jud, True)
+        
+        return aff, neg, judge
 
 
     @staticmethod
@@ -282,16 +271,16 @@ class DebateAgent:
                                      })
         return codebook
 
-    def load_json(self, id):
+    def load_json(self, id, aff, neg, judge):
         output_dir = os.path.join(self.output, "debate-agent")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         save_json_path = os.path.join(output_dir, f"debate_response{id}.json")
         result = {"target_text": self.config["target_text"], "Disagreed": self.config["Disagreed"],
-                  "Affirmative Debater": self.affirmative.memory_lst,
-                  "Negative Debater": self.negative.memory_lst,
-                  "Judge": self.judge.memory_lst,
-                  "Debate Result": self.codebook
+                  "Affirmative Debater": aff.memory_lst,
+                  "Negative Debater": neg.memory_lst,
+                  "Judge": judge.memory_lst,
+                  "Debate Result": self.to_codebook(judge.memory_lst)
                   }
         json_code = json.dumps(result, indent=4, ensure_ascii=False)
         with open(save_json_path, "w") as file:

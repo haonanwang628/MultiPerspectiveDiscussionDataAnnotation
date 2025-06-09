@@ -31,7 +31,11 @@ if __name__ == "__main__":
                                  api_key=args.api_key,  # []
                                  sleep_time=0,
                                  base_url=args.base_url)
-        agree_config["Annotators"] = roles.Annotators_str
+        Annotators_meta = roles.single_agents_init()
+        Annotators_str, Annotators = roles.single_agents_codebook(Annotators_meta)
+        agree_config["Annotators"] = Annotators_str
+        roles.load_json(i, Annotators)
+
         agree = Agents.AgreeAgent(model_name=args.model_name,
                                   temperature=args.temperature,
                                   config=agree_config,
@@ -39,7 +43,10 @@ if __name__ == "__main__":
                                   api_key=args.api_key,
                                   sleep_time=0,
                                   base_url=args.base_url)
-        debate_config["Disagreed"] = agree.view["Disagreed"]
+        view = agree.agree_agent_codebook()
+        agree.load_json(i, view)
+        debate_config["Disagreed"] = view["Disagreed"]
+
         debate = Agents.DebateAgent(model_name=args.model_name,
                                     temperature=args.temperature,
                                     config=debate_config,
@@ -47,11 +54,10 @@ if __name__ == "__main__":
                                     api_key=args.api_key,
                                     sleep_time=0,
                                     base_url=args.base_url)
-        roles.load_json(i)
-        agree.load_json(i)
-        debate.load_json(i)
+        Affirmative, Negative, Judge = debate.debate()
+        debate.load_json(i, Affirmative, Negative, Judge)
 
-        codebook = [*agree.view["Agreed"], *debate.codebook]
+        codebook = [*view["Agreed"], *debate.to_codebook(Judge.memory_lst)]
         save_json_path = os.path.join(codebook_dir, f"{i}.json")
         result = {"target_text": text["data_chunk"],
                   "codebook": codebook

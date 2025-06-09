@@ -3,27 +3,31 @@
     "codebook": [
         {
             "code": "process_level_quality",
-            "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, QA Engineer, DevOps Engineer) emphasize quality at the process level, highlighting workflows, methodologies, and CI/CD pipelines as critical for ensuring overall quality."
+            "justification": "All roles (Software Developer, UX/UI Designer, Project Manager, Quality Assurance Engineer, DevOps Engineer) recognize the importance of quality at the process level, emphasizing methodologies, workflows, and efficiency in software development."
         },
         {
             "code": "software_level_quality",
-            "justification": "All roles acknowledge quality at the software level, focusing on attributes like maintainability, usability, performance, and correctness in the final product or deliverables."
+            "justification": "All roles agree on the significance of quality at the software level, focusing on attributes like performance, reliability, and user satisfaction in the final product."
         },
         {
-            "code": "quality_dimensions",
-            "justification": "Multiple roles (Software Developer, UX/UI Designer, QA Engineer) frame quality as multi-dimensional, requiring both process and product perspectives to ensure holistic quality assurance."
+            "code": "quality_definition",
+            "justification": "Multiple roles (Project Manager, Quality Assurance Engineer, UX/UI Designer) highlight the attempt to define quality, indicating a shared interest in establishing clear standards and benchmarks."
         },
         {
-            "code": "Quality Definition",
-            "justification": "The text's focus on defining quality at process and software levels lacks QA-specific language, making 'Quality Definition' a more inclusive and accurate code."
+            "code": "quality_levels",
+            "justification": "Both parties agree to merge into 'quality_levels' as the text's use of 'levels' is more accurate than 'dimensions' while preserving the partitioning idea."
         },
         {
-            "code": "process_and_software_quality_levels",
-            "justification": "The text's dual-level focus is technical and neutral, warranting a merge to a role-agnostic code."
+            "code": "quality_levels",
+            "justification": "The text's focus on 'levels' [L 1-2] is the most accurate interpretation, capturing both technical and potential user-facing aspects without over-specifying UX."
         },
         {
-            "code": "quality_level_specification",
-            "justification": "The text's focus on defining quality levels [L 1-2] is technical rather than PM-specific, warranting a neutral code."
+            "code": "quality_span",
+            "justification": "The text's coverage of both levels [L 1-2] warrants coding, but 'quality_span' better reflects this without assuming unstated integration."
+        },
+        {
+            "code": "quality_levels",
+            "justification": "Both parties agree to merge to 'quality_levels' as it best captures the text's neutral description of levels without role-specific interpretations."
         }
     ]
 }
