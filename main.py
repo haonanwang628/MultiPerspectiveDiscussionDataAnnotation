@@ -32,7 +32,7 @@ if __name__ == "__main__":
                                  sleep_time=0,
                                  base_url=args.base_url)
         Annotators_meta = roles.single_agents_init()
-        Annotators_str, Annotators = roles.single_agents_codebook(Annotators_meta)
+        Annotators_str, Annotators, _ = roles.single_agents_codebook(Annotators_meta)
         agree_config["Annotators"] = Annotators_str
         roles.load_json(i, Annotators)
 
@@ -54,10 +54,10 @@ if __name__ == "__main__":
                                     api_key=args.api_key,
                                     sleep_time=0,
                                     base_url=args.base_url)
-        Affirmative, Negative, Judge = debate.debate()
-        debate.load_json(i, Affirmative, Negative, Judge)
+        Affirmative_Negative, Judge = debate.debate()
+        debate.load_json(i, Affirmative_Negative, Judge)
 
-        codebook = [*view["Agreed"], *debate.to_codebook(Judge.memory_lst)]
+        codebook = [*view["Agreed"], *debate.to_codebook(Judge)]
         save_json_path = os.path.join(codebook_dir, f"{i}.json")
         result = {"target_text": text["data_chunk"],
                   "codebook": codebook

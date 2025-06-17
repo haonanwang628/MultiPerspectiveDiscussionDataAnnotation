@@ -33,14 +33,6 @@ class RoleAgent:
 
         self.config = config
 
-        # 1、init: Role Inference Stage
-        # list: [{"role": "" , "disciplinary_background":"", "perspective":""} ...]
-        # self.Annotators_meta = self.single_agents_init()
-
-        # 2、Agents/llms generate codebook
-        # list: [{"role": "" , "disciplinary_background":"", "codebook":[{"code":"", "justification":""}]}]
-        # self.Annotators_str, self.Annotators = self.single_agents_codebook(self.Annotators_meta)
-
     def single_agents_init(self):
         role = Agent(
             model_name=self.model_name,
@@ -63,10 +55,9 @@ class RoleAgent:
         Annotators = []
         for i in range(len(Annotators_meta)):
             role_prompt = self.config["role_prompt"] \
-                .replace("^^^role^^^", Annotators_meta[i]["role" + str(i + 1)]) \
-                .replace("^^^Disciplinary Background^^^", Annotators_meta[i]["disciplinary_background"]) \
-                .replace("^^^Perspective^^^", Annotators_meta[i]["perspective"])
-
+                .replace("[role]", Annotators_meta[i]["role" + str(i + 1)]) \
+                .replace("[Disciplinary Background]", Annotators_meta[i]["disciplinary_background"]) \
+                .replace("[Perspective]", Annotators_meta[i]["perspective"])
             role = Agent(
                 model_name=self.model_name,
                 name=Annotators_meta[i]["role" + str(i + 1)],
@@ -75,16 +66,17 @@ class RoleAgent:
                 sleep_time=self.sleep_time,
                 base_url=self.base_url
             )
-
             role.set_meta_prompt(role_prompt)
             role.event(self.config["meta_prompt"].replace("[Target Text]", self.config["target_text"]))
             role_response = role.ask()
-            role.memory(role_response, False)
+            role.memory(role_response, True)
             Annotators_str += "/n" + role_response
             Annotators.append(to_json(role_response))
 
         # [{"role": "" , "disciplinary_background":"", "codebook":[{"code":"", "justification":""}]}]
         return Annotators_str, Annotators
+
+    # def debate(self):
 
     def load_json(self, id, Annotators):
         output_dir = os.path.join(self.output, "role-agent")
@@ -215,6 +207,7 @@ class DebateAgent:
 
     def debate(self):
         aff, neg, judge = self.debate_agents_init()
+        aff_neg_memory, judge_memory = [], []
         for _, codebook in enumerate(self.config["Disagreed"]):
             code, justification = codebook["code"], codebook["justification"]
 
@@ -255,34 +248,42 @@ class DebateAgent:
                 .replace("NEG_R2", neg_r2).replace("AFF_CLOSE", aff_close).replace("NEG_CLOSE", neg_close))
             jud = judge.ask()
             judge.memory(jud, True)
-        
-        return aff, neg, judge
 
+            aff_neg_memory.append({"Disagreed": code, "Affirmative": aff.memory_lst[1:], "Negative": neg.memory_lst[1:]})
+            judge_memory.append(judge.memory_lst[1:])
+
+            del aff.memory_lst[1:]
+            del neg.memory_lst[1:]
+            del judge.memory_lst[1:]
+
+        return aff_neg_memory, judge_memory
 
     @staticmethod
     def to_codebook(judge_response):
         codebook = []
-        for _, response in enumerate(judge_response):
-            if response["role"] == "assistant":
-                content = json.loads(response["content"].replace('```', '').replace('json', '').replace('\n', ''))
-                if content["Resolution"] != "Drop":
-                    codebook.append({"code": content["final_code"],
-                                     "justification": content["briefly explain"]
-                                     })
+        for line in judge_response:
+            line = json.loads(line)
+            for _, response in enumerate(line):
+                if response["role"] == "assistant":
+                    content = json.loads(response["content"].replace('```', '').replace('json', '').replace('\n', ''))
+                    if content["Resolution"] != "Drop":
+                        codebook.append({"code": content["final_code"],
+                                         "justification": content["briefly explain"]
+                                         })
         return codebook
 
-    def load_json(self, id, aff, neg, judge):
+    def load_json(self, id, aff_neg, judge):
         output_dir = os.path.join(self.output, "debate-agent")
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         save_json_path = os.path.join(output_dir, f"debate_response{id}.json")
-        result = {"target_text": self.config["target_text"], "Disagreed": self.config["Disagreed"],
-                  "Affirmative Debater": aff.memory_lst,
-                  "Negative Debater": neg.memory_lst,
-                  "Judge": judge.memory_lst,
-                  "Debate Result": self.to_codebook(judge.memory_lst)
+        result = {"target_text": self.config["target_text"],
+                  # "Affirmative Debater": aff,
+                  # "Negative Debater": neg,
+                  "Debate": aff_neg,
+                  "Judge": judge,
+                  "Debate Result": self.to_codebook(judge)
                   }
         json_code = json.dumps(result, indent=4, ensure_ascii=False)
         with open(save_json_path, "w") as file:
             file.write(json_code)
-

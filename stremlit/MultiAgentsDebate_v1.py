@@ -157,7 +157,7 @@ class MultiAgents:
             if st.session_state.role_reply and st.session_state.agree_reply:
                 debate_config["target_text"] = user_input
                 debate_config["Disagreed"] = st.session_state.agree_reply.get("Disagreed", [])
-                codebook = [*debate_config["Disagreed"], *self.debate()]
+                codebook = [*st.session_state.agree_reply.get("Agreed", []), *self.debate()]
                 self.display_debate_dialogue("Judge Final Codebook", "⚖️", json.dumps(codebook, ensure_ascii=False, indent=2))
 
     def debate(self):
@@ -219,7 +219,7 @@ class MultiAgents:
             judge_prompt = debate_config["Judge"].replace("AFF_R1", aff_r1).replace("AFF_R2", aff_r2).replace("NEG_R1", neg_r1).replace("NEG_R2", neg_r2).replace("AFF_CLOSE", aff_close).replace("NEG_CLOSE", neg_close)
             judge.event(judge_prompt)
             jud = judge.ask()
-            judge.memory(jud, True)
+            judge.memory(jud, False)
             judge_response = to_json(jud)
             self.display_debate_dialogue("Judge", "⚖️", json.dumps(judge_response, ensure_ascii=False, indent=2))
 
@@ -228,6 +228,9 @@ class MultiAgents:
                     "code": judge_response.get("final_code", ""),
                     "justification": judge_response.get("briefly explain", "")
                 })
+            del aff.memory_lst[1:]
+            del neg.memory_lst[1:]
+
         return CODEBOOK
 
     def run(self):

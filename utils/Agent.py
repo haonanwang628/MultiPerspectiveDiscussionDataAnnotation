@@ -5,7 +5,7 @@ import time
 from utils.Function import *
 
 class Agent:
-    def __init__(self, model_name, name, temperature=0, sleep_time=0, api_key=None, base_url=None):
+    def __init__(self, model_name, name, temperature=1.0, sleep_time=0, api_key=None, base_url=None):
         """Create an agent
 
             Args:
