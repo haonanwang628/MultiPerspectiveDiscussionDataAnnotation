@@ -3,13 +3,16 @@ import os
 import sys
 import time
 import json
+from openpyxl import load_workbook, Workbook
+from openpyxl.styles import Alignment
+import os
 
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
 
 import Agents
-from utils.Function import import_json
+from utils.Function import import_json, save_excel
 
 available_models = ["deepseek-chat", "GPT-3.5", "GPT-4", "Claude"]
 
@@ -108,10 +111,10 @@ class MultiAgents:
     def render_user_message(self, text):
         st.markdown(f"""
         <div style='display: flex; justify-content: flex-end; align-items: center; margin: 6px 0;'>
-            <div style='font-size: 24px; margin-left: 8px;'>{self.user_avatar}</div>
-            <div style='background-color: #DCF8C6; padding: 10px 14px; border-radius: 10px; max-width: 70%; text-align: right;'>
+            <div style='background-color: #DCF8C6; padding: 10px 14px; border-radius: 10px; max-width: 70%; text-align: left;'>
                 {text}
             </div>
+            <div style='font-size: 24px; margin-left: 8px;'>{self.user_avatar}</div>
         </div>
         """, unsafe_allow_html=True)
 
@@ -311,15 +314,16 @@ class MultiAgents:
                 st.session_state.agree_list.append({"code": st.session_state.judge_final_code,
                                                     "justification": st.session_state.judge_final_justification})
 
+            # save final codebook
             if not st.session_state.disagreed_list:
-                # save agree_list
-                pass
+                save_excel("codebook.xlsx", target_text, st.session_state.agree_list)
 
 
 if __name__ == "__main__":
     role_config = import_json("config/role_config.json")
     agree_config = import_json("config/agree_config.json")
     debate_config = import_json("config/debate_config.json")
+
 
     app = MultiAgents(
         model_registry={
