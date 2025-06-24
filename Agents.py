@@ -131,8 +131,9 @@ class AgreeAgent:
             sleep_time=self.sleep_time,
             base_url=self.base_url
         )
-        agree_agent_infer = self.config["agree_infer"]["system"].replace("[code and justifications]",
-                                                                         self.config["Annotators"])
+        agree_agent_infer = self.config["agree_infer"]["system"].replace("[codes and justifications]",
+                                                                         self.config["Annotators"]).replace(
+            "[Target Text]", self.config["target_text"])
         agree.set_meta_prompt(agree_agent_infer)
         agree.event(self.config["agree_infer"]["user"])
         view = agree.ask()
@@ -249,7 +250,8 @@ class DebateAgent:
             jud = judge.ask()
             judge.memory(jud, True)
 
-            aff_neg_memory.append({"Disagreed": code, "Affirmative": aff.memory_lst[1:], "Negative": neg.memory_lst[1:]})
+            aff_neg_memory.append(
+                {"Disagreed": code, "Affirmative": aff.memory_lst[1:], "Negative": neg.memory_lst[1:]})
             judge_memory.append(judge.memory_lst[1:])
 
             del aff.memory_lst[1:]

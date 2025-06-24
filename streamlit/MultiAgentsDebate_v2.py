@@ -248,26 +248,48 @@ class MultiAgents:
             {"name": f"Role2({st.session_state.roles_meta[1]['role2']})", "color": "🔴", "obj": role2},
             {"name": f"Role3({st.session_state.roles_meta[2]['role3']})", "color": "🔵", "obj": role3}
         ]
-        # round 1
-        role_r1 = []
-        for role_info in roles:
-            role = role_info["obj"]
-            role.event(debate_config["role debater"]["round 1"].replace("[code]", code).replace("[justification]",
-                                                                                                justification))
-            response = role.ask()
-            role.memory(response, True)
-            role_r1.append(response)
-            self.display_debate_dialogue(role_info["name"], role_info["color"], response)
 
-        # round 2
-        role_r2 = []
-        for role_info in roles:
-            role = role_info["obj"]
-            role.event(debate_config["role debater"]["round 2"].replace("opponent_round1", str(role_r1)))
-            response = role.ask()
-            role.memory(response, True)
-            role_r2.append(response)
-            self.display_debate_dialogue(role_info["name"], role_info["color"], response)
+        role_res = [[]]*3
+        for r in range(3):
+            role_res[r] = []
+            if r == 0:
+                for role_info in roles:
+                    role = role_info["obj"]
+                    role.event(debate_config["role debater"]["point"].replace("[code]", code).replace("[justification]",
+                                                                                                        justification))
+                    response = role.ask()
+                    role.memory(response, True)
+                    role_res[r].append(f"[{role_info['name']}: {response}]")
+                    self.display_debate_dialogue(role_info["name"], role_info["color"], response)
+            else:
+                for role_info in roles:
+                    role = role_info["obj"]
+                    role.event(debate_config["role debater"]["round 2~n"].replace("opponent", str(role_res[r-1])))
+                    response = role.ask()
+                    role.memory(response, True)
+                    role_res[r].append(f"[{role_info['name']}: {response}]")
+                    self.display_debate_dialogue(role_info["name"], role_info["color"], response)
+
+        # # round 1
+        # role_r1 = []
+        # for role_info in roles:
+        #     role = role_info["obj"]
+        #     role.event(debate_config["role debater"]["round 1"].replace("[code]", code).replace("[justification]",
+        #                                                                                         justification))
+        #     response = role.ask()
+        #     role.memory(response, True)
+        #     role_r1.append(f"[{role_info['name']}: {response}]")
+        #     self.display_debate_dialogue(role_info["name"], role_info["color"], response)
+        #
+        # # round 2
+        # role_r2 = []
+        # for role_info in roles:
+        #     role = role_info["obj"]
+        #     role.event(debate_config["role debater"]["round 2"].replace("opponent_round1", str(role_r1)))
+        #     response = role.ask()
+        #     role.memory(response, True)
+        #     role_r2.append(f"[{role_info['name']}: {response}]")
+        #     self.display_debate_dialogue(role_info["name"], role_info["color"], response)
 
         # closing
         role_close = []
@@ -276,11 +298,12 @@ class MultiAgents:
             role.event(debate_config["role debater"]["closing"])
             response = role.ask()
             role.memory(response, True)
-            role_close.append(response)
+            role_close.append(f"[{role_info['name']}: {response}]")
             self.display_debate_dialogue(role_info["name"], role_info["color"], response)
 
-        judge_prompt = debate_config["Judge"].replace("[ALL_ROLES_R1]", str(role_r1)) \
-            .replace("[ALL_ROLES_R2]", str(role_r2)).replace("[ROLE_A_CLOSE]", str(role_close))
+        judge_prompt = debate_config["Judge"].replace("[ALL_ROLES_R1]", str(role_res[0])) \
+            .replace("[ALL_ROLES_R2]", str(role_res[1])).replace("[ALL_ROLES_R3]", str(role_res[2]))\
+            .replace("[ROLE_CLOSE]", str(role_close))
         judge.event(judge_prompt)
         jud = judge.ask()
         judge_response = to_json(jud)
