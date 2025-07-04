@@ -1,3 +1,4 @@
+# 最后delete 合并到dataset
 import pandas as pd
 import json
 import os
@@ -19,7 +20,7 @@ for sheet in participant_sheets:
         df = pd.read_excel(xls, sheet_name=sheet, header=2)
 
         data_chunk_col = df.columns[4]  # Unnamed: 4
-        code_col = df.columns[5]        # Unnamed: 5
+        code_col = df.columns[5]  # Unnamed: 5
 
         # 向下填充 chunk 并去除空值
         df[data_chunk_col] = df[data_chunk_col].fillna(method="ffill")

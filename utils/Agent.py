@@ -4,8 +4,9 @@ import time
 
 from utils.Function import *
 
+
 class Agent:
-    def __init__(self, model_name, name, temperature=1.0, sleep_time=0, api_key=None, base_url=None):
+    def __init__(self, model_name, name="", temperature=0.0, sleep_time=0, api_key=None, base_url=None):
         """Create an agent
 
             Args:
@@ -53,8 +54,8 @@ class Agent:
 
     def ask(self, temperature=0):
         num_context_token = sum([num_tokens_from_string(m["content"], self.model_name) for m in self.memory_lst])
-        return self.query(self.memory_lst, self.max_token-num_context_token, temperature if temperature else self.temperature)
-
+        return self.query(self.memory_lst, self.max_token - num_context_token,
+                          temperature if temperature else self.temperature)
 
     def set_meta_prompt(self, meta_prompt: str):
         """Set the meta_prompt
@@ -63,7 +64,7 @@ class Agent:
             meta_prompt (str): the meta prompt
         """
         self.memory_lst.append({"role": "system", "content": f"{meta_prompt}"})
-        
+
     def event(self, event):
         """Add an new event in the memory
         Args:
@@ -83,4 +84,3 @@ class Agent:
             self.memory_lst.append({"role": "assistant", "content": f"{memory}"})
         if if_print:
             print(f"----- {self.name} -----\n{memory}\n")
-

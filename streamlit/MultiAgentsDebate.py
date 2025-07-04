@@ -1,0 +1,444 @@
+import streamlit as st
+import os
+import sys
+import time
+import json
+import os
+import copy
+
+project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+if project_root not in sys.path:
+    sys.path.append(project_root)
+
+from utils import Agent
+from utils.Function import import_json, save_excel
+
+available_models = ["deepseek-chat", "GPT-3.5", "GPT-4", "Claude"]
+
+api_key = {
+    "GPT-3.5": "sk-xxx",
+    "GPT-4": "sk-xxx",
+    "deepseek-chat": "sk-9bc06d1289704b05b7b52db5285dba67",
+    "Claude": "sk-xxx"
+}
+
+base_url = {
+    "GPT-3.5": "https://api.openai.com/v1",
+    "GPT-4": "https://api.openai.com/v1",
+    "deepseek-chat": "https://api.deepseek.com/v1",
+    "Claude": "https://api.anthropic.com"
+}
+
+roles_team = ["Management", "Product Owners", "Scrum Masters", "Quality Assurance", "Software developers"]
+Disciplinary_Background = ["Engineering", "Psychology", "Law", "Sociology", "UX/Design", "Business/Management",
+                           "Healthcare", "Education", "Ethics", "Computer Science"]
+Core_Values = ["Fairness", "Efficiency", "Accuracy", "Inclusivity", "Transparency", "Empathy", "User Experience",
+               "Safety", "Social Responsibility", "Innovation"]
+
+
+class MultiAgentsDebate:
+    def __init__(self):
+        self.user_avatar = "🧑‍💻"
+        self.title = "LLM Team Debate"
+
+        self.init_session()
+
+    def init_session(self):
+        if "chat_history" not in st.session_state:
+            st.session_state.chat_history = []
+            # introduce (F1)
+            prologue = debate_config["Facilitator"]["task1"]
+            st.session_state.chat_history.append({
+                "role": "Introduce-Prologue",
+                "name": "Facilitator(Introduce)",
+                "avatar": "📃",
+                "content": prologue
+            })
+        if "roles_team" not in st.session_state:
+            st.session_state.roles_team = []
+        if "debate_models" not in st.session_state:
+            st.session_state.debate_models = {
+                "Role1": "deepseek-chat",
+                "Role2": "deepseek-chat",
+                "Role3": "deepseek-chat",
+                "Facilitator": "deepseek-chat"
+            }
+        if "agree_list" not in st.session_state:
+            st.session_state.agree_list = []
+        if "disagreed_list" not in st.session_state:
+            st.session_state.disagreed_list = []
+        if "Facilitator" not in st.session_state:
+            st.session_state.Facilitator = None
+        if "roles" not in st.session_state:
+            st.session_state.roles = None
+
+    def render_model_selectors(self):
+        with st.sidebar:
+            st.subheader("⚖️ LLM Team")
+
+            for i, role in enumerate(["Role1", "Role2", "Role3"]):
+                self.render_divider()
+                role_selected = st.selectbox(f"{role}", roles_team, index=i, key=f"{role}_name")
+                disciplinary_selected = st.selectbox("Disciplinary_Background", Disciplinary_Background, index=i,
+                                                     key=f"{role}_Disciplinary_Background")
+                corevalue_selected = st.selectbox("Core_Value", Core_Values, index=i, key=f"{role}_Core_Value")
+                st.session_state.roles_team.append({"role": role_selected,
+                                                    "disciplinary_background": disciplinary_selected,
+                                                    "core_value": corevalue_selected})
+
+    def render_sidebar_results(self):
+        with st.sidebar:
+
+            st.markdown("""
+                <style>
+                div.stButton > button:first-child {
+                    color: red;              /* 文字颜色 */
+                    padding: 10px;          /* 内边距 */
+                    border-radius: 10px;       /* 圆角 */
+                    font-size: 10px;         /* 字体大小 */
+                    transition: 1s;        /* 平滑过渡 */
+                }
+                div.stButton > button:first-child:hover {
+                    background-color: #45a049; /* 悬停时颜色 */
+                    transform: scale(1.1);   /* 悬停放大 */
+                }
+                </style>
+            """, unsafe_allow_html=True)
+            if st.button("Update Items"):
+                pass
+            self.render_divider()
+
+            st.markdown("### ✅ Agreed Items")
+            for _, item in enumerate(st.session_state.agree_list):
+                st.markdown(f"- {item['code']}")
+
+            st.markdown("---")
+            st.markdown("### ⚠️ Disagreed Items")
+            for idx, item in enumerate(st.session_state.disagreed_list):
+                if st.button(f"🔍 {item['code']}", key=f"discuss_{idx}"):
+                    st.session_state.selected_disagree = item
+                    st.session_state.chat_history = [chat for chat in st.session_state.chat_history if
+                                                     chat.get("role") != "Debate Agent" or chat.get(
+                                                         "role") != "debate divider"]
+
+    def render_user_message(self, text):
+        st.markdown(f"""
+        <div style='display: flex; justify-content: flex-end; align-items: center; margin: 6px 0;'>
+            <div style='background-color: #DCF8C6; padding: 10px 14px; border-radius: 10px; max-width: 70%; text-align: left;'>
+                {text}
+            </div>
+            <div style='font-size: 24px; margin-left: 8px;'>{self.user_avatar}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    def render_agent_message(self, name, avatar, content, delay=False):
+        st.markdown(f"""
+        <div style='display: flex; justify-content: flex-start; align-items: flex-start; margin: 6px 0;'>
+            <div style='font-size: 24px; margin-right: 8px;'>{avatar}</div>
+            <div style='background-color: #F1F0F0; padding: 10px 14px; border-radius: 10px; max-width: 75%; text-align: left;'>
+                <b>{name}</b>
+            </div>
+        """, unsafe_allow_html=True)
+
+        try:
+            parsed = json.loads(content) if isinstance(content, str) else content
+            st.json(parsed)
+        except Exception:
+            placeholder = st.empty()
+            full = ""
+            for ch in str(content):
+                full += ch
+                placeholder.markdown(f"<div style='font-family: monospace;'>{full}</div>", unsafe_allow_html=True)
+                if delay:
+                    time.sleep(0.01)
+
+        st.markdown("</div></div>", unsafe_allow_html=True)
+
+    def render_divider(self, text=""):
+        st.markdown(
+            f"""
+            <style>
+            .custom-divider {{
+                color: gray;
+                text-align: center;
+                border-top: 1px solid #aaa;
+                padding: 10px;
+                font-family: sans-serif;
+            }}
+            </style>
+            <div class='custom-divider'>{text}</div>
+            """,
+            unsafe_allow_html=True
+        )
+
+    def display_debate_dialogue(self, speaker_name, avatar, message):
+        st.session_state.chat_history.append({
+            "role": "Debate Agent",
+            "name": speaker_name,
+            "avatar": avatar,
+            "content": message
+        })
+        self.render_agent_message(speaker_name, avatar, message)
+
+    def render_chat(self):
+        for msg in st.session_state.chat_history:
+            if msg["role"] == "user":
+                self.render_user_message(msg["content"])
+            elif msg["role"] in {"divider", "debate divider"}:
+                self.render_divider(msg["content"])
+            else:
+                self.render_agent_message(msg["name"], msg["avatar"], msg["content"])
+
+    def handle_input(self, user_input):
+        if user_input:
+            st.session_state.chat_history.append({"role": "user", "content": user_input})
+            self.render_user_message(user_input)
+
+            st.session_state.role_reply = None
+            st.session_state.agree_reply = None
+
+            # Role_Inference_Stage
+            st.session_state.chat_history.append({
+                "role": "divider",
+                "content": "Roles Init Codebook"
+            })
+            self.render_divider("Roles Init Codebook")
+            role_stage_reply = self.roles_stage(user_input)
+            st.session_state.chat_history.append({
+                "role": "Roles Generation agent",
+                "name": "Role_Inference_Stage",
+                "avatar": "🔁",
+                "content": role_stage_reply
+            })
+            self.render_agent_message("Role_Inference_Stage", "🔁", role_stage_reply, True)
+            st.session_state.role_reply = role_stage_reply
+
+            # Agree_Disagree_stage (F2)
+            st.session_state.chat_history.append({
+                "role": "divider",
+                "content": "Agree/Disagree Codebook"
+            })
+            self.render_divider("Agree/Disagree Codebook")
+            agree_disagree_reply = self.agree_disagree(user_input)
+            st.session_state.chat_history.append({
+                "role": "Agree-Disagree",
+                "name": "Facilitator(Agree vs Disagree)",
+                "avatar": "📃",
+                "content": agree_disagree_reply
+            })
+            self.render_agent_message("Facilitator(Agree vs Disagree)", "📃", agree_disagree_reply, True)
+            st.session_state.agree_disagree_reply = agree_disagree_reply
+
+            if st.session_state.role_reply and st.session_state.agree_disagree_reply:
+                st.session_state.agree_list = st.session_state.agree_disagree_reply.get("Agreed", [])
+                st.session_state.disagreed_list = st.session_state.agree_disagree_reply.get("Disagreed", [])
+
+            # Debate Ready (F3)
+            st.session_state.chat_history.append({
+                "role": "divider",
+                "content": "Start Debate"
+            })
+            self.render_divider("Start Debate")
+            st.session_state.Facilitator.event(debate_config["Facilitator"]["task3"]
+                                               .replace("[Target Text]", user_input)
+                                               .replace("[ROLE_CODEBOOKS]", str(role_stage_reply))
+                                               .replace("[Disagreed]", str(st.session_state.disagreed_list)))
+            debate_ready_reply = st.session_state.Facilitator.ask()
+            st.session_state.Facilitator.memory(debate_ready_reply)
+            st.session_state.chat_history.append({
+                "role": "Agree-Disagree",
+                "name": "Facilitator(Why Disagree)",
+                "avatar": "📃",
+                "content": debate_ready_reply
+            })
+            self.render_agent_message("Facilitator(Why Disagree)", "📃", debate_ready_reply, True)
+
+    def roles_stage(self, target_text):
+
+        # Role_Inference_Stage
+        # role_infer = Agent.Agent(
+        #     model_name="deepseek-chat",
+        #     name="Role_Inference_Stage",
+        #     api_key=api_key["deepseek-chat"],
+        #     base_url=base_url["deepseek-chat"]
+        # )
+        # role_infer_sys = debate_config["roles_stage_generate"]["system"].replace("[Insert Domain Name]",
+        #                                                                          debate_config["Domain"])
+        # role_infer.set_meta_prompt(role_infer_sys)
+        # role_infer.event(debate_config["roles_stage_generate"]["task"])
+        # Annotators = role_infer.ask()
+        # role_infer.memory(Annotators, False)
+        # Annotators_meta = json.loads(eval(Annotators.replace('```', "'''").replace('json', '').replace('\n', '')))
+        # st.session_state.roles_meta = Annotators_meta  # Roles Generate list
+
+        # llm team (each role define)
+        role1_model = st.session_state.debate_models["Role1"]
+        role2_model = st.session_state.debate_models["Role2"]
+        role3_model = st.session_state.debate_models["Role3"]
+        role1, role2, role3 = [
+            Agent.Agent(
+                model_name=mdl,
+                name=role,
+                api_key=api_key[mdl],
+                base_url=base_url[mdl]
+            )
+            for mdl, role in
+            zip([role1_model, role2_model, role3_model], ["Role1", "Role2", "Role3"])
+        ]
+        Annotators = []
+        for role, meta in zip([role1, role2, role3], st.session_state.roles_team):
+            role_prompt = debate_config["role_prompt"]["system"] \
+                .replace("[role]", meta["role"]) \
+                .replace("[Disciplinary Background]", meta["disciplinary_background"]) \
+                .replace("[Core Value]", meta["core_value"])
+
+            role.set_meta_prompt(role_prompt)
+            role.event(debate_config["role_prompt"]["task"].replace("[Target Text]", target_text))
+            role_response = role.ask()
+            role.memory(role_response)
+            Annotators.append(
+                json.loads(role_response.replace('```', "").replace('json', '').strip()))
+        st.session_state.roles_annotate = Annotators  # Roles Annotate list
+        st.session_state.roles = [role1, role2, role3]
+        return Annotators
+
+    def agree_disagree(self, target_text):
+        fac_model = st.session_state.debate_models["Facilitator"]
+        Facilitator = Agent.Agent(
+            model_name=fac_model,
+            name="Agree_Disagree",
+            api_key=api_key[fac_model],
+            base_url=base_url[fac_model]
+        )
+        agree_agent_infer = debate_config["Facilitator"]["system"]
+        Facilitator.set_meta_prompt(agree_agent_infer)
+        Facilitator.event(debate_config["Facilitator"]["task2"] \
+                          .replace("[codes and justifications]", str(st.session_state.roles_annotate)) \
+                          .replace("[Target Text]", target_text))
+
+        view = Facilitator.ask()
+        Facilitator.memory(view)
+        # self.Facilitator.memory_lst.clear()  # clear message history
+        st.session_state.Facilitator = Facilitator
+        return json.loads(eval(view.replace('```', "'''").replace('json', '').replace('\n', '')))
+
+    def debate_single(self, target_text, code, justification):
+        # Central Issue
+        # st.session_state.chat_history.append({
+        #     "role": "divider",
+        #     "content": "Central Issue"
+        # })
+        self.render_divider("Central Issue")
+        issue = debate_config["Facilitator"]["Central Issue"]
+        # st.session_state.chat_history.append({
+        #     "role": "Agree-Disagree",
+        #     "name": "Facilitator",
+        #     "avatar": "📃",
+        #     "content": issue
+        # })
+        self.render_agent_message("Facilitator(Issue)", "📃", issue, True)
+
+        # role system setting
+        for role, meta in zip(st.session_state.roles, st.session_state.roles_team):
+            role.memory_lst = []
+            role_prompt = debate_config["role_prompt"]["system"] \
+                .replace("[role]", meta["role"]) \
+                .replace("[Disciplinary Background]", meta["disciplinary_background"]) \
+                .replace("[Core Value]", meta["core_value"])
+            role.set_meta_prompt(role_prompt)
+        meta_prompt = debate_config["role_debater"]["system"].replace("[Target Text]", target_text).replace(
+            "[code and justification]", str([{"code": code, "justification": justification}]))
+        for role in st.session_state.roles:
+            role.set_meta_prompt(meta_prompt)
+
+        # role personal information
+        roles = [
+            {"name": f"Role1({st.session_state.roles_team[0]['role']})", "color": "🟢",
+             "obj": st.session_state.roles[0]},
+            {"name": f"Role2({st.session_state.roles_team[1]['role']})", "color": "🔴",
+             "obj": st.session_state.roles[1]},
+            {"name": f"Role3({st.session_state.roles_team[2]['role']})", "color": "🔵",
+             "obj": st.session_state.roles[2]}
+        ]
+
+        # Debating
+        debate_responses = []
+        for i, debate in enumerate(debate_config["role_debater"]["debate_round"].items()):
+            st.session_state.chat_history.append({
+                "role": "debate divider",
+                "content": round_theme[i]
+            })
+            self.render_divider(round_theme[i])
+            roles_responses = []
+            for role_info in roles:
+                role = role_info["obj"]
+                if i > 0:
+                    role.event(f"Round {i + 1}:\n{debate}".replace("[response]", str(debate_responses[-1])))
+                else:
+                    role.event(f"Round {i + 1}:\n{debate}")
+                response = role.ask()
+                response = response if f"Round {i + 1}" in response else f"Round {i + 1}\n{response}"
+                roles_responses.append(f"{role_info['name']}: {response}")
+                role.memory(response)
+                self.display_debate_dialogue(role_info["name"], role_info["color"],
+                                             response.replace(f"Round {i + 1}", ""))
+            # include roles_responses of every round
+            debate_responses.append({f"Round {i + 1}": roles_responses})
+
+        # Closing (F4)
+        close_prompt = debate_config["Facilitator"]["task4"].replace("[debate_responses]",
+                                                                     str(debate_responses))
+        st.session_state.Facilitator.event(close_prompt)
+        close = st.session_state.Facilitator.ask()
+        st.session_state.Facilitator.memory(close, False)
+        close_response = json.loads(close.replace('```', '').replace('json', '').strip())
+        self.display_debate_dialogue("Facilitator(Final conclusion)", "⚖️",
+                                     json.dumps(close_response, ensure_ascii=False, indent=2))
+
+        # debate finish
+
+        st.session_state.close_resolution = close_response["Resolution"]
+        if close_response["Resolution"].strip().lower() != "drop":
+            st.session_state.final_code = close_response["final_code"]
+            st.session_state.final_justification = close_response["evidence"]
+
+    def run(self):
+        st.set_page_config(page_title=self.title, layout="wide")
+        st.title(self.title)
+
+        user_input = st.chat_input("Input your text here...")
+        if user_input != "" and user_input:
+            st.session_state.target_text = user_input
+        self.render_chat()
+        self.render_model_selectors()
+        self.handle_input(user_input)
+        self.render_sidebar_results()
+
+        if st.session_state.get("selected_disagree") in st.session_state.disagreed_list:
+            # Single Disagreed Debate
+            target_text = st.session_state.target_text
+            item = st.session_state.selected_disagree
+            self.debate_single(target_text, item["code"], item["evidence"])
+            st.session_state.disagreed_list = [i for i in st.session_state.disagreed_list if
+                                               i.get("code") != item["code"]]
+            resolution = st.session_state.close_resolution
+            if isinstance(resolution, str) and resolution.strip().lower() != "drop":
+                st.session_state.agree_list.append({"code": st.session_state.final_code,
+                                                    "evidence": st.session_state.final_justification})
+
+            # Save Final Codebook
+            if not st.session_state.disagreed_list:
+                save_excel("codebook.xlsx", target_text, st.session_state.agree_list)
+
+
+if __name__ == "__main__":
+    debate_config = import_json("config/debate_config.json")
+    round_theme = ["Round 1 (Claim): a concise conclusion whose validity still needs to be demonstrated.",
+                   "Round 2 (Grounds): A fact(or (Evidence or Data),) one appeals to as a foundation for the claim.",
+                   "Round 3 (Warrant): Reasoning Rule or Logic A statement authorizing movement from the ground to the claim.",
+                   "Round 4 (Backing): Credentials designed to certify the statement expressed in the warrant",
+                   "Round 5 (Rebuttal): Statements recognizing the restrictions which may legitimately be applied to the claim",
+                   "Round 6 (Qualifier): Words or phrases expressing the speaker's degree of force or certainty concerning the claim"
+                   ]
+    app = MultiAgentsDebate()
+    app.run()

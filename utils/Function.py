@@ -25,21 +25,18 @@ llm_MaxToken = {
 }
 
 
+# string tokens
 def num_tokens_from_string(string: str, model_name: str) -> int:
     encoding_name = MODEL_TOKENIZER_MAP.get(model_name, "cl100k_base")
     encoding = tiktoken.get_encoding(encoding_name)
     return len(encoding.encode(string))
 
-
+# open json file
 def import_json(file: str):
     with open(file, "r", encoding="utf-8") as f:
         return json.load(f)
 
-
-def to_json(string: str):
-    return json.loads(eval(string.replace('```', "'''").replace('json', '').replace('\n', '')))
-
-
+# save codebook to excel
 def save_excel(file_path, target_text, codebook):
     if os.path.exists(file_path):
         wb = load_workbook(file_path)
@@ -48,32 +45,34 @@ def save_excel(file_path, target_text, codebook):
     else:
         wb = Workbook()
         ws = wb.active
-        ws.append(["target_text", "code", "justification"])
+        ws.append(["target_text", "code", "evidence"])
         last_row = 1
 
     start_row = last_row + 1
     end_row = start_row + len(codebook) - 1
     merge_range = f"A{start_row}:A{end_row}"
 
-    # (3) 写入 target_text（合并单元格）
+    # load target text
     ws.merge_cells(merge_range)
     ws[f"A{start_row}"] = target_text
     ws[f"A{start_row}"].alignment = Alignment(vertical="center", horizontal="center", wrap_text=True)
 
-    # (4) 写入 code 和 justification
+    # load code and justification
     for idx, item in enumerate(codebook, start=start_row):
         ws.cell(row=idx, column=2, value=item["code"])  # B列：code
-        ws.cell(row=idx, column=3, value=item["justification"])  # C列：justification
+        ws.cell(row=idx, column=3, value=item["evidence"])  # C列：justification
 
-    # (5) 调整列宽（可选）
+    # adjust column wide
     ws.column_dimensions['A'].width = 50
     ws.column_dimensions['B'].width = 25
     ws.column_dimensions['C'].width = 80
 
-    # 保存文件
+    # save file
     wb.save(file_path)
     print(f"Current Final Codebook has been saved {file_path}")
 
+
+# parser control
 def parse_args():
     parser = argparse.ArgumentParser("", formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
