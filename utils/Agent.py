@@ -1,14 +1,12 @@
-# 用于创建Agent
 import openai
 import time
 
-from utils.Function import *
+from utils.Function import llm_MaxToken, num_tokens_from_string
 
 
 class Agent:
     def __init__(self, model_name, name="", temperature=0.0, sleep_time=0, api_key=None, base_url=None):
         """Create an agent
-
             Args:
                 model_name (str): model name, e.g., 'gpt-4', 'deepseek-chat'
                 name (str): name of this agent
@@ -17,13 +15,13 @@ class Agent:
                 api_key (str): API key for the model
                 base_url (str): base URL for non-OpenAI models
          """
-
         self.model_name = model_name
         self.name = name
         self.temperature = temperature
         self.sleep_time = sleep_time
         self.api_key = api_key
         self.base_url = base_url
+
         self.memory_lst = []
         self.max_token = llm_MaxToken[model_name]
 
@@ -82,5 +80,7 @@ class Agent:
         """
         if if_memory:
             self.memory_lst.append({"role": "assistant", "content": f"{memory}"})
+        elif self.memory_lst[-1]["role"] == "user":
+            self.memory_lst.pop()
         if if_print:
             print(f"----- {self.name} -----\n{memory}\n")
