@@ -54,7 +54,7 @@ class MultiAgentsDebate:
     def render_model_selectors(self):
         with st.sidebar:
             st.subheader("⚖️ LLM Team")
-
+            st.session_state.roles_identity.clear()
             for i, role in enumerate(["Role1", "Role2", "Role3"]):
                 self.render_divider()
                 role_selected = st.selectbox(f"{role}", roles_name, index=i, key=f"{role}_name")
