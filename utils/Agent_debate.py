@@ -1,36 +1,37 @@
 from utils.Agent import Agent
 from utils.Function import *
+import random
+
+random.seed(42)
 
 
 class DebateModel:
-    def __init__(self, debate_config, llms_name):
+    def __init__(self, debate_config, models_name):
         """Create a Debate Model
         Args:
             debate_config: debate prompt and debate progress design
-            llms_name (str): multi llm(roles and moderator) name, e.g., ['gpt-4', 'deepseek-chat'],
-
+            models_name: multi Agents(roles and Facilitator) models name,
         """
         self.config = debate_config
-        self.llm_names = llms_name
+        self.models_name = models_name
 
         self.target_text = self.config["target_text"]
 
     def agents_init(self):
         """
-            return: roles and Moderator Agent.
+            return: roles and Facilitator Agent.
         """
-        Role1, Role2, Role3, Moderator = [
-            Agent(
-                model_name=mdl,
-                name=role,
-                api_key=api_key[mdl],
-                base_url=base_url[mdl]
-            )
-            for mdl, role in
-            zip(self.llm_names, ["Role1", "Role2", "Role3"])
-        ]
-        roles = [Role1, Role2, Role3]
-        return roles, Moderator
+        roles = []
+        for i, role in enumerate(self.models_name):
+            roles.append(
+                Agent(
+                    model_name=self.models_name[role],
+                    name=role,
+                    api_key=api_key[self.models_name[role]],
+                    base_url=base_url[self.models_name[role]]
+                ))
+        Facilitator = roles.pop()
+        return roles, Facilitator
 
     def role_stage(self, roles, roles_identity):
         """
@@ -53,43 +54,43 @@ class DebateModel:
             role.event(self.config["role_prompt"]["positionality"])
             role_response = role.ask()
             roles_positionality.append(role_response)
-            role.memory(role_response, if_print=False)
+            role.memory(role_response, False)
 
             # roles codebook generate
             role.event(self.config["role_prompt"]["task"].replace("[Target Text]", self.target_text))
             role_response = role.ask()
-            role.memory(role_response, if_print=False)
+            role.memory(role_response, False)
             roles_annotate.append(
                 json.loads(role_response.replace('```', "").replace('json', '').strip()))
         return roles_positionality, roles_annotate
 
-    def agree_disagree(self, Moderator, roles_annotate):
+    def agree_disagree(self, Facilitator, roles_annotate):
         """
         Args:
-            Moderator: Moderator Agent.
+            Facilitator: Facilitator Agent.
             roles_annotate: roles annotate----Codebook of target text.
         return: Agreed and Disagreed Codebook.
         """
-        agree_agent_infer = self.config["Moderator"]["system"]
-        Moderator.set_meta_prompt(agree_agent_infer)
-        Moderator.event(self.config["Moderator"]["task2"]
-                        .replace("[codes and justifications]", str(roles_annotate))
-                        .replace("[Target Text]", self.target_text))
-        view = Moderator.ask()
-        Moderator.memory(view, if_print=False)
+        agree_agent_infer = self.config["Facilitator"]["system"]
+        Facilitator.set_meta_prompt(agree_agent_infer)
+        Facilitator.event(self.config["Facilitator"]["task2"]
+                          .replace("[codes and justifications]", str(roles_annotate))
+                          .replace("[Target Text]", self.target_text))
+        view = Facilitator.ask()
+        Facilitator.memory(view, False)
         return json.loads(eval(view.replace('```', "'''").replace('json', '').replace('\n', '')))
 
-    def single_disagree_debate(self, roles, roles_identity, Moderator, disagree):
+    def single_disagree_debate(self, roles, roles_identity, Facilitator, disagree):
         """
         Args:
-            Moderator: Moderator Agent.
+            Facilitator: Facilitator Agent.
             roles: list of all role Agent.
             roles_identity: Set up the identity for each role. [{"role":, "disciplinary_background":, "core_value":}].
             disagree: disagree codebook.
         return:
         """
         meta_prompt = self.config["role_debater"]["system"].replace("[Target Text]", self.target_text).replace(
-            "[code and justification]", str([{"code": disagree["code"], "justification": disagree["justification"]}]))
+            "[code and justification]", str([{"code": disagree["code"], "evidence": disagree["evidence"]}]))
         for role, meta in zip(roles, roles_identity):
             role.memory_lst.clear()
             role_prompt = self.config["role_prompt"]["system"] \
@@ -117,20 +118,17 @@ class DebateModel:
                     role.event(f"Round {i + 1}:\n{debate}")
                 response = role.ask()
                 response = response if f"Round {i + 1}" in response else f"Round {i + 1}\n{response}"
-                roles_responses.append(f"{role_info['name']}: {response}")
-                role.memory(response, if_print=False)
+                roles_responses.append(f"{role_info['name']}: {response}\n\n")
+                role.memory(response, False)
             # include roles_responses of every round
-            debate_responses.append(f"Round {i + 1}: {roles_responses}")
-
+            debate_responses.append({f"round {i + 1}": f"{debate}",
+                                     "response": f"{roles_responses}"})
         # Closing (F4)
-        close_prompt = self.config["Moderator"]["task4"] \
-            .replace("[debate_responses]",str(debate_responses))
-        Moderator.event(close_prompt)
-        close = Moderator.ask()
-        Moderator.memory(close, False, False)
+        close_prompt = self.config["Facilitator"]["task4"] \
+            .replace("[debate_responses]", str(debate_responses))
+        Facilitator.event(close_prompt)
+        close = Facilitator.ask()
+        Facilitator.memory(close, False, False)
         close_response = json.loads(close.replace('```', '').replace('json', '').strip())
 
         return debate_responses, close_response
-
-    def save_json(self):
-        ...

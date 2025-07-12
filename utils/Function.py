@@ -6,6 +6,9 @@ import pandas as pd
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment
 import os
+import random
+
+random.seed(42)
 
 # define-model-tokenizer map table
 MODEL_TOKENIZER_MAP = {
@@ -35,6 +38,31 @@ base_url = {
     "Claude": "https://api.anthropic.com"
 }
 
+# debate
+roles_name = ["Management", "Product Owners", "Scrum Masters", "Quality Assurance", "Software developers"]
+Disciplinary_Background = ["Engineering", "Psychology", "Law", "Sociology", "UX/Design", "Business/Management",
+                           "Healthcare", "Education", "Ethics", "Computer Science"]
+Core_Values = ["Fairness", "Efficiency", "Accuracy", "Inclusivity", "Transparency", "Empathy", "User Experience",
+               "Safety", "Social Responsibility", "Innovation"]
+round_theme = ["Round 1 (Claim): a concise conclusion whose validity still needs to be demonstrated.",
+               "Round 2 (Grounds): A fact(or (Evidence or Data),) one appeals to as a foundation for the claim.",
+               "Round 3 (Warrant): Reasoning Rule or Logic A statement authorizing movement from the ground to the claim.",
+               "Round 4 (Backing): Credentials designed to certify the statement expressed in the warrant",
+               "Round 5 (Rebuttal): Statements recognizing the restrictions which may legitimately be applied to the claim",
+               "Round 6 (Qualifier): Words or phrases expressing the speaker's degree of force or certainty concerning the claim"
+               ]
+
+
+# random generate identity
+def roles_identity_generate(roles_num):
+    roles_identity = []
+    for i in range(roles_num):
+        roles_identity.append({
+            "role": random.choice(roles_name),
+            "disciplinary_background": random.choice(Disciplinary_Background),
+            "core_value": random.choice(Core_Values)})
+    return roles_identity
+
 
 # string tokens
 def num_tokens_from_string(string: str, model_name: str) -> int:
@@ -49,7 +77,7 @@ def import_json(file: str):
         return json.load(f)
 
 
-# save codebook to excel
+# save all codebook to excel
 def save_codebook_excel(file_path: str, target_text: str, codebook: [dict]):
     if os.path.exists(file_path):
         wb = load_workbook(file_path)
@@ -84,7 +112,7 @@ def save_codebook_excel(file_path: str, target_text: str, codebook: [dict]):
     print(f"✅ Current Codebook has been saved: {file_path}")
 
 
-# save debate process to excel
+# save single debate process to excel
 def save_debate_excel(file_path: str, target_text: str, disagreed_list: [str], debate_list: [[str]]):
     if os.path.exists(file_path):
         wb = load_workbook(file_path)
