@@ -1,56 +1,12 @@
 import tiktoken
-import os
 import json
-import argparse
-import pandas as pd
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment
 import os
 import random
-
-random.seed(42)
-
-# define-model-tokenizer map table
-MODEL_TOKENIZER_MAP = {
-    "deepseek-chat": "cl100k_base",
-    "deepseek-reasoner": "cl100k_base",
-}
-
-llm_MaxToken = {
-    "deepseek-chat": 8000,
-    "deepseek-reasoner": 8000,
-    "gpt-4o-mini-2024-07-18": 10000
-}
-
-available_models = ["deepseek-chat", "GPT-3.5", "gpt-4o-mini-2024-07-18", "Claude"]
-
-api_key = {
-    "GPT-3.5": "sk-xxx",
-    "gpt-4o-mini-2024-07-18": "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",
-    "deepseek-chat": "sk-9bc06d1289704b05b7b52db5285dba67",
-    "Claude": "sk-xxx"
-}
-
-base_url = {
-    "GPT-3.5": "",
-    "gpt-4o-mini-2024-07-18": "",
-    "deepseek-chat": "https://api.deepseek.com/v1",
-    "Claude": "https://api.anthropic.com"
-}
-
-# debate
-roles_name = ["Management", "Product Owners", "Scrum Masters", "Quality Assurance", "Software developers"]
-Disciplinary_Background = ["Engineering", "Psychology", "Law", "Sociology", "UX/Design", "Business/Management",
-                           "Healthcare", "Education", "Ethics", "Computer Science"]
-Core_Values = ["Fairness", "Efficiency", "Accuracy", "Inclusivity", "Transparency", "Empathy", "User Experience",
-               "Safety", "Social Responsibility", "Innovation"]
-round_theme = ["Round 1 (Claim): a concise conclusion whose validity still needs to be demonstrated.",
-               "Round 2 (Grounds): A fact(or (Evidence or Data),) one appeals to as a foundation for the claim.",
-               "Round 3 (Warrant): Reasoning Rule or Logic A statement authorizing movement from the ground to the claim.",
-               "Round 4 (Backing): Credentials designed to certify the statement expressed in the warrant",
-               "Round 5 (Rebuttal): Statements recognizing the restrictions which may legitimately be applied to the claim",
-               "Round 6 (Qualifier): Words or phrases expressing the speaker's degree of force or certainty concerning the claim"
-               ]
+from config.debate_menu import *
+from config.model_menu import *
+random.seed(1)
 
 
 # random generate identity

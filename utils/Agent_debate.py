@@ -1,8 +1,8 @@
+import json
 from utils.Agent import Agent
-from utils.Function import *
+from config.model_menu import *
 import random
-
-random.seed(42)
+random.seed(1)
 
 
 class DebateModel:
@@ -69,8 +69,9 @@ class DebateModel:
         Args:
             Facilitator: Facilitator Agent.
             roles_annotate: roles annotate----Codebook of target text.
-        return: Agreed and Disagreed Codebook.
+        return: Agreed-Disagreed Codebook and Disagreed Explain.
         """
+        # Agree_Disagree_stage (F2)
         agree_agent_infer = self.config["Facilitator"]["system"]
         Facilitator.set_meta_prompt(agree_agent_infer)
         Facilitator.event(self.config["Facilitator"]["task2"]
@@ -78,7 +79,16 @@ class DebateModel:
                           .replace("[Target Text]", self.target_text))
         view = Facilitator.ask()
         Facilitator.memory(view, False)
-        return json.loads(eval(view.replace('```', "'''").replace('json', '').replace('\n', '')))
+        agree_disagree = json.loads(eval(view.replace('```', "'''").replace('json', '').replace('\n', '')))
+
+        # Debate Ready (F3)
+        Facilitator.event(self.config["Facilitator"]["task3"]
+                                               .replace("[Target Text]", self.target_text)
+                                               .replace("[ROLE_CODEBOOKS]", str(roles_annotate))
+                                               .replace("[Disagreed]", str(agree_disagree["Disagreed"])))
+        disagree_explain = Facilitator.ask()
+        Facilitator.memory(disagree_explain, False)
+        return agree_disagree, disagree_explain
 
     def single_disagree_debate(self, roles, roles_identity, Facilitator, disagree):
         """
@@ -123,6 +133,7 @@ class DebateModel:
             # include roles_responses of every round
             debate_responses.append({f"round {i + 1}": f"{debate}",
                                      "response": f"{roles_responses}"})
+
         # Closing (F4)
         close_prompt = self.config["Facilitator"]["task4"] \
             .replace("[debate_responses]", str(debate_responses))
