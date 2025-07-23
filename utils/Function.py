@@ -6,15 +6,16 @@ import os
 import random
 from config.debate_menu import *
 from config.model_menu import *
-random.seed(1)
+
+random.seed(2)
 
 
 # random generate identity
-def roles_identity_generate(roles_num):
+def roles_identity_generate(roles_num, role=None):
     roles_identity = []
     for i in range(roles_num):
         roles_identity.append({
-            "role": random.choice(roles_name),
+            "role": random.choice(roles_name) if not role else role[i],
             "disciplinary_background": random.choice(Disciplinary_Background),
             "core_value": random.choice(Core_Values)})
     return roles_identity
@@ -31,6 +32,12 @@ def num_tokens_from_string(string: str, model_name: str) -> int:
 def import_json(file: str):
     with open(file, "r", encoding="utf-8") as f:
         return json.load(f)
+
+
+# save json file
+def save_json(file: str, Target):
+    with open(file, "w", encoding="utf-8") as f:
+        json.dump(Target, f, indent=4)
 
 
 # save all codebook to excel

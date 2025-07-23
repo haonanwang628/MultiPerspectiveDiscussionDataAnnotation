@@ -70,7 +70,7 @@ class Agent:
         """
         self.memory_lst.append({"role": "user", "content": f"{event}"})
 
-    def memory(self, memory, if_memory=True, if_print=False):
+    def memory(self, memory, if_memory=True, if_print=True):
         """Monologue in the memory
 
         Args:

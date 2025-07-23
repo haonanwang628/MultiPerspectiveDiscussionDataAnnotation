@@ -2,7 +2,7 @@ import json
 from utils.Agent import Agent
 from config.model_menu import *
 import random
-random.seed(1)
+random.seed(3)
 
 
 class DebateModel:

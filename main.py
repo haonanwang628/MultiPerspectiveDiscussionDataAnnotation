@@ -2,7 +2,7 @@ import json
 import os
 import argparse
 from utils.Agent_debate import DebateModel
-from utils.Function import import_json, roles_identity_generate
+from utils.Function import import_json, save_json, roles_identity_generate
 
 
 def parse_args():
@@ -35,18 +35,19 @@ if __name__ == "__main__":
         "Role3": "deepseek-chat",
         "Facilitator": "deepseek-chat",
     }
-    roles_identity = roles_identity_generate(len(models_name) - 1)
+    roles_identity = roles_identity_generate(len(models_name) - 1, role=["Product Owners", "Scrum Masters", "Quality Assurance"])
     codebook = []
     for i, text in enumerate(texts):
-        # if i == 2:
-        #     break
+        if i == 20:
+            break
         print(f"------------Current Target Text {i+1}------------")
         debate_config["target_text"] = text["data_chunk"]
+        code_gt = text["code"]
         debate = DebateModel(debate_config, models_name)
         roles, Facilitator = debate.agents_init()
         roles_positionality, roles_annotate = debate.role_stage(roles, roles_identity)
-        for j, positionality in enumerate(roles_positionality):
-            roles_identity[j]["positionality"] = positionality
+        for role_id, positionality in zip(roles_identity, roles_positionality):
+            role_id["positionality"] = positionality
         agree_disagree, disagree_explain = debate.agree_disagree(Facilitator, roles_annotate)
         debate_process, disagree_to_agree = [], []
         for disagree in agree_disagree["Disagreed"]:
@@ -66,18 +67,19 @@ if __name__ == "__main__":
         print(f"Debate Finish !")
         result = {
             "target_text": debate_config["target_text"],
-            "Codebook": agree_disagree["Agreed"] + disagree_to_agree,
             "Role_Team": roles_identity,
+            "Role_init_codebook": roles_annotate,
             "Consolidating_results": agree_disagree,
             "disagree_explain": disagree_explain,
             "Debate": debate_process,
+            "Codebook": agree_disagree["Agreed"] + disagree_to_agree,
         }
         codebook.append({"target_text": debate_config["target_text"],
+                         "Code_GroundTruth": code_gt,
+                         "Codebook_Pre": roles_annotate,
                          "Codebook": agree_disagree["Agreed"]})
         # save every target debate process
-        with open(f"{args.output_dir}\debate_process\json\debate_{i}.json", "w", encoding="utf-8") as f:
-            json.dump(result, f, indent=4)
+        save_json(f"{args.output_dir}\debate_process\json\debate_{i}.json", result)
 
     # save data codebook
-    with open(f"{args.output_dir}\codebook.json", "w", encoding="utf-8") as f:
-        json.dump(codebook, f, indent=4)
+    save_json(f"{args.output_dir}\codebook.json", codebook)

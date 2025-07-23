@@ -91,6 +91,8 @@ class MultiAgentsDebate:
             st.markdown("### Target Text")
             if st.session_state.get("target_text"):
                 st.markdown(f"{st.session_state.target_text}")
+            else:
+                st.markdown("#########")
 
             self.render_divider()
             if st.button("Update Items/Positionality"):
