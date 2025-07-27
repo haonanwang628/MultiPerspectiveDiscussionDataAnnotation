@@ -35,12 +35,14 @@ if __name__ == "__main__":
         "Role3": "deepseek-chat",
         "Facilitator": "deepseek-chat",
     }
-    roles_identity = roles_identity_generate(len(models_name) - 1, role=["Product Owners", "Scrum Masters", "Quality Assurance"])
+    # roles_identity = roles_identity_generate(len(models_name) - 1, role=["Product Owners", "Scrum Masters",
+    # "Quality Assurance"])
+    roles_identity = roles_identity_generate(len(models_name) - 1)
     codebook = []
     for i, text in enumerate(texts):
         if i == 20:
             break
-        print(f"------------Current Target Text {i+1}------------")
+        print(f"------------Current Target Text {i + 1}------------")
         debate_config["target_text"] = text["data_chunk"]
         code_gt = text["code"]
         debate = DebateModel(debate_config, models_name)

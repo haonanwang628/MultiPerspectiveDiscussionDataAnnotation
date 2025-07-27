@@ -81,6 +81,9 @@ class MultiAgentsDebate:
                 }
                 </style>
             """, unsafe_allow_html=True)
+
+            # st.session_state.human_input = st.chat_input("Input your prompt...")
+
             self.render_divider()
             if st.button("Generate Positionality"):
                 self.roles_stage(pos=True)
@@ -95,7 +98,7 @@ class MultiAgentsDebate:
                 st.markdown("#########")
 
             self.render_divider()
-            if st.button("Update Items/Positionality"):
+            if st.button("Update WebPage/Items/Positionality"):
                 pass
             self.render_divider()
 
