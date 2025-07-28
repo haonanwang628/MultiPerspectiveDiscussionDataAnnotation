@@ -4,12 +4,11 @@ import sys
 import os
 from LLMsTeamDebate import MultiAgentsDebate
 
-
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
 from config.debate_menu import *
-from utils.Function import save_codebook_excel, save_debate_excel, import_json
+from utils.Function import import_json
 
 
 class MultiAgentsHumanDebate(MultiAgentsDebate):
@@ -151,8 +150,9 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
             st.session_state.current_role = 0
             st.session_state.input_finished = False
             st.session_state.setdefault("human_input", "")
-            st.session_state.debate_responses = []
+            st.session_state.debate_response = []
             st.session_state.debate_started = True
+            st.session_state.debate_text = ""
 
         # ----------- Prepare Round Info ------------
         round_keys = list(self.config["role_debater"]["debate_round"].keys())
@@ -168,7 +168,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
         # ----------- Debate in Progress ------------
         if i < len(round_keys):
             debate_key = round_keys[i]
-            if not st.session_state.get("debate"):
+            if st.session_state.debate_text == "":
                 st.session_state.debate_text = self.config["role_debater"]["debate_round"][debate_key]
 
             if j == 0:
@@ -187,24 +187,39 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
             if j == 2 and not st.session_state.input_finished:
                 st.markdown(f"{role_info['color']} **{role_info['name']}** is waiting for your input:")
                 st.text_input("Your Thinking", key="human_input", label_visibility="collapsed")
-                if st.button("Input Finish and Click Continue", key=f"btn_round_{i}"):
+                if st.button("Input Finish", key=f"btn_round_{i}"):
                     st.session_state.input_finished = True
                     st.session_state.human_input_submitted = True
-                    st.info("Click Again to Continue.")
-                    st.session_state.debate_text += f"\nHuman Thinking: {st.session_state.human_input}"
+                    human_text = f"\n\nConsider the human response carefully. " \
+                                 f"Decide whether you agree or disagree with it, and " \
+                                 f"briefly explain your reasoning. Your explanation should " \
+                                 f"be based on logical analysis, relevance to the input, and " \
+                                 f"sound judgment.\n\nHuman Response: {st.session_state.human_input}\n\n" \
+                                 f"strictly in the following output format: \n\n" \
+                                 f"**Reasoning:** briefly explain(1~3 sentence)"
+                    st.session_state.debate_text = f"{st.session_state.debate_text}{human_text}"
+                    if st.button("Click here to Continue"):
+                        pass
+
                 if st.button("Skip Input", key=f"skip_btn_round_{i}"):
                     st.session_state.input_finished = True
                     st.session_state.human_input_submitted = True
-                    st.info("Click Again to Continue.")
+                    if st.button("Click here to Continue"):
+                        pass
+
                 st.stop()
 
             # 生成 prompt
             if i > 0:
-                last_response = st.session_state.debate_responses[-1] if st.session_state.debate_responses else ""
+                last_response = st.session_state.debate_response[-1] if st.session_state.debate_response else ""
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}".replace("[response]", str(last_response))
             else:
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}"
 
+            print("++++++++++++++++++")
+            print(role_info["name"])
+            print(event_text)
+            print("++++++++++++++++++")
             role.event(event_text)
             response = role.ask()
             response = response if f"Round {i + 1}" in response else f"Round {i + 1}\n{response}"
