@@ -168,7 +168,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
         # ----------- Debate in Progress ------------
         if i < len(round_keys):
             debate_key = round_keys[i]
-            if st.session_state.debate_text == "":
+            if not st.session_state.debate_text:
                 st.session_state.debate_text = self.config["role_debater"]["debate_round"][debate_key]
 
             if j == 0:
