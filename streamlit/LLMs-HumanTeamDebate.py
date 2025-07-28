@@ -189,7 +189,6 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 st.text_input("Your Thinking", key="human_input", label_visibility="collapsed")
                 if st.button("Input Finish", key=f"btn_round_{i}"):
                     st.session_state.input_finished = True
-                    st.session_state.human_input_submitted = True
                     human_text = f"\n\nConsider the human response carefully. " \
                                  f"Decide whether you agree or disagree with it, and " \
                                  f"briefly explain your reasoning. Your explanation should " \
@@ -203,7 +202,6 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
 
                 if st.button("Skip Input", key=f"skip_btn_round_{i}"):
                     st.session_state.input_finished = True
-                    st.session_state.human_input_submitted = True
                     if st.button("Click here to Continue"):
                         pass
 
