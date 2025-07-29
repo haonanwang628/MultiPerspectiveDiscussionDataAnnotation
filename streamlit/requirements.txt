@@ -6,7 +6,8 @@ pandas
 numpy
 seaborn
 matplotlib
-torch==2.0.1
+torch==2.0.1+cpu
+--find-links https://download.pytorch.org/whl/torch_stable.html
 scikit-learn
 scipy
 transformers
