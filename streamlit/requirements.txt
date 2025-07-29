@@ -1,3 +1,4 @@
+--upgrade pip
 openai
 tiktoken
 openpyxl
