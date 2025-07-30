@@ -189,14 +189,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 st.text_input("Your Thinking", key="human_input", label_visibility="collapsed")
                 if st.button("Input Finish", key=f"btn_round_{i}"):
                     st.session_state.input_finished = True
-                    human_text = f"\n\nConsider the human response carefully. " \
-                                 f"Decide whether you agree or disagree with it, and " \
-                                 f"briefly explain your reasoning. Your explanation should " \
-                                 f"be based on logical analysis, relevance to the input, and " \
-                                 f"sound judgment.\n\nHuman Response: {st.session_state.human_input}\n\n" \
-                                 f"strictly in the following output format: \n\n" \
-                                 f"**Reasoning:** briefly explain(1~3 sentence)"
-                    st.session_state.debate_text = f"{st.session_state.debate_text}{human_text}"
+                    st.session_state.debate_text = f"{st.session_state.human_input}"
                     if st.button("Click here to Continue"):
                         pass
 
@@ -213,11 +206,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}".replace("[response]", str(last_response))
             else:
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}"
-
-            print("++++++++++++++++++")
-            print(role_info["name"])
-            print(event_text)
-            print("++++++++++++++++++")
+                
             role.event(event_text)
             response = role.ask()
             response = response if f"Round {i + 1}" in response else f"Round {i + 1}\n{response}"
