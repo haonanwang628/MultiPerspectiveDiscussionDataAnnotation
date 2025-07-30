@@ -212,11 +212,11 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 response = role.ask()
                 response = response if f"Round {i + 1}" in response else f"Round {i + 1}\n{response}"
                 role.memory(response)
-                self.render_chat_history("Debate Agent", role_info["name"], role_info["color"],
-                                         response.replace(f"Round {i + 1}", ""))
             else:
                 response = st.session_state.debate_text
-
+                
+            self.render_chat_history("Debate Agent", role_info["name"], role_info["color"],
+                                         response.replace(f"Round {i + 1}", ""))
             st.session_state[f"round_{i}_responses"].append(f"{role_info['name']}: {response}")
 
             # 前进一位角色
