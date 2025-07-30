@@ -15,7 +15,7 @@ available_models = ["deepseek-chat", "GPT-3.5", "gpt-4o-mini-2024-07-18", "Claud
 api_key = {
     "GPT-3.5": "sk-xxx",
     "gpt-4o-mini-2024-07-18": "",
-    "deepseek-chat": "sk-9bc06d1289704b05b7b52db5285dba67",
+    "deepseek-chat": "",
     "Claude": "sk-xxx"
 }
 
