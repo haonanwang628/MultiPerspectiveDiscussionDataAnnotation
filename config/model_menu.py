@@ -14,7 +14,7 @@ available_models = ["deepseek-chat", "GPT-3.5", "gpt-4o-mini", "Claude"]
 
 api_key = {
     "GPT-3.5": "sk-xxx",
-    "gpt-4o-mini":"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",
+    "gpt-4o-mini":"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",
     "deepseek-chat": "sk-9bc06d1289704b05b7b52db5285dba67",
     "Claude": "sk-xxx"
 }
