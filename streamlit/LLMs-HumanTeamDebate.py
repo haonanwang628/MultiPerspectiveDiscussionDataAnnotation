@@ -271,13 +271,14 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
 if __name__ == "__main__":
     debate_config = import_json("config/debate_config.json")
     models_name = {
-        "Role1": "gpt-4o-mini",
-        "Role2": "gpt-4o-mini",
-        "Human": "gpt-4o-mini",
-        "Facilitator": "gpt-4o-mini",
+        "Role1": "deepseek-chat",
+        "Role2": "deepseek-chat",
+        "Human": "deepseek-chat",
+        "Facilitator": "deepseek-chat",
     }
     app = MultiAgentsHumanDebate(debate_config, models_name)
     app.run("LLMs-HumanOutput")
+
 
 
 
