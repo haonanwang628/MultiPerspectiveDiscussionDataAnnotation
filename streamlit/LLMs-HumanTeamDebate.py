@@ -203,6 +203,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
 
                 if st.button("Skip Input", key=f"skip_btn_round_{i}"):
                     st.session_state.input_finished = True
+                    st.session_state.debate_text = ""
                     if st.button("Click here to Continue"):
                         pass
 
@@ -277,3 +278,4 @@ if __name__ == "__main__":
     }
     app = MultiAgentsHumanDebate(debate_config, models_name)
     app.run("LLMs-HumanOutput")
+
