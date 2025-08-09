@@ -426,14 +426,14 @@ class MultiAgentsDebate:
                 save_json(str(outdir / "json" / f"debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"), result)
 
                 st.markdown("## After completing all data annotation, click to package and download all the results.")
-                if st.button("package to zip"):
-                    zip_bytes = zip_folder_to_bytes(output_file)
-                    st.download_button(
-                        label=f"Download results",
-                        data=zip_bytes,
-                        file_name=f"{Path(output_file).name}.zip",
-                        mime="application/zip"
-                    )
+                
+                zip_bytes = zip_folder_to_bytes(output_file)
+                st.download_button(
+                    label=f"Download results",
+                    data=zip_bytes,
+                    file_name=f"{Path(output_file).name}.zip",
+                    mime="application/zip"
+                )
 
                 st.session_state.disagreed_list_select.clear()
                 st.session_state.debate_responses.clear()
@@ -450,6 +450,7 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
 
 
