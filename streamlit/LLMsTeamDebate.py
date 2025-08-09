@@ -391,13 +391,19 @@ class MultiAgentsDebate:
                                                     "evidence": st.session_state.final_justification})
 
             if not st.session_state.disagreed_list:
+                outdir = Path(output_file)
+                (outdir / "json").mkdir(parents=True, exist_ok=True)
+                (outdir / "excel").mkdir(parents=True, exist_ok=True)
+
                 # Save Debate Process
-                save_debate_excel(f"{output_file}/excel/debate.xlsx", st.session_state.target_text, st.session_state.disagreed_list_select,
+                save_debate_excel(str(outdir / "json" / "debate.xlsx"), st.session_state.target_text,
+                                  st.session_state.disagreed_list_select,
                                   st.session_state.debate_responses)
 
                 # Save Final Codebook
                 debate_process = []
-                save_codebook_excel(f"{output_file}/excel/codebook.xlsx", st.session_state.target_text, st.session_state.agree_list)
+                save_codebook_excel(str(outdir / "json" / "codebook.xlsx"), st.session_state.target_text,
+                                    st.session_state.agree_list)
                 for disagree, debate_responses, close_response in zip(st.session_state.disagreed_list_select,
                                                                       st.session_state.debate_responses,
                                                                       st.session_state.closing):
@@ -416,48 +422,22 @@ class MultiAgentsDebate:
                     "Debate": debate_process,
                     "Codebook": st.session_state.agree_list,
                 }
-                
-                outdir = Path(output_file)
-                (outdir / "json").mkdir(parents=True, exist_ok=True)
-                (outdir / "excel").mkdir(parents=True, exist_ok=True)
-                
-                save_json(f"{output_file}/json/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
 
-                if "zip_bytes_cache" not in st.session_state:
-                    st.session_state.zip_bytes_cache = None
-                    
-                zip_bytes = zip_folder_to_bytes(output_file)
+                save_json(str(outdir / "json" / f"debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"), result)
+
                 st.markdown("## After completing all data annotation, click to package and download all the results.")
-                
-                if st.button("Package results (ZIP)"):
-                    files = [p for p in outdir.rglob("*") if p.is_file()]
-                    if not files:
-                        st.warning("No files found in the output folder.")
-                    else:
-                        import io
-                        from zipfile import ZipFile, ZIP_DEFLATED
-
-                        prog = st.progress(0, text=f"Zipping 0/{len(files)} …")
-                        buf = io.BytesIO()
-                        with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
-                            for i, p in enumerate(files, 1):
-                                zf.write(p, p.relative_to(outdir).as_posix())
-                                prog.progress(int(i * 100 / len(files)), text=f"Zipping {i}/{len(files)} …")
-                        buf.seek(0)
-                        st.session_state.zip_bytes_cache = buf.read()
-                        prog.progress(100, text="ZIP ready ✅")
-                        
-                st.download_button(
-                    label=f"Download results",
-                    data=zip_bytes,
-                    file_name=f"{Path(output_file).name}.zip",
-                    mime="application/zip"
-                )
+                if st.button("package to zip"):
+                    zip_bytes = zip_folder_to_bytes(output_file)
+                    st.download_button(
+                        label=f"Download results",
+                        data=zip_bytes,
+                        file_name=f"{Path(output_file).name}.zip",
+                        mime="application/zip"
+                    )
 
                 st.session_state.disagreed_list_select.clear()
                 st.session_state.debate_responses.clear()
                 st.session_state.closing.clear()
-
 
 if __name__ == "__main__":
     debate_config = import_json("config/debate_config.json")
@@ -470,6 +450,7 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
 
 
