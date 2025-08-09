@@ -11,11 +11,12 @@ llm_MaxToken = {
 }
 
 available_models = ["deepseek-chat", "GPT-3.5", "gpt-4o-mini", "Claude"]
+import os
 
 api_key = {
     "GPT-3.5": "sk-xxx",
-    "gpt-4o-mini": "",
-    "deepseek-chat": "sk-9bc06d1289704b05b7b52db5285dba67",
+    "gpt-4o-mini": os.getenv("OPENAI_API_KEY"),
+    "deepseek-chat": os.getenv("DEEPSEEK_API_KEY"),
     "Claude": "sk-xxx"
 }
 
@@ -25,3 +26,4 @@ base_url = {
     "deepseek-chat": "https://api.deepseek.com/v1",
     "Claude": "https://api.anthropic.com"
 }
+
