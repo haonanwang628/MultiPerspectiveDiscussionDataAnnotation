@@ -190,6 +190,14 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 if st.button("Input Finish", key=f"btn_round_{i}"):
                     st.session_state.input_finished = True
                     st.session_state.debate_text = f"{st.session_state.human_input}"
+                    # human_text = f"\n\nConsider the human response carefully. " \
+                    #              f"Decide whether you agree or disagree with it, and " \
+                    #              f"briefly explain your reasoning. Your explanation should " \
+                    #              f"be based on logical analysis, relevance to the input, and " \
+                    #              f"sound judgment.\n\nHuman Response: {st.session_state.human_input}\n\n" \
+                    #              f"strictly in the following output format: \n\n" \
+                    #              f"**Reasoning:** briefly explain(1~3 sentence)"
+                    # st.session_state.debate_text = f"{st.session_state.debate_text}{human_text}"
                     if st.button("Click here to Continue"):
                         pass
 
@@ -206,7 +214,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}".replace("[response]", str(last_response))
             else:
                 event_text = f"Round {i + 1}:\n{st.session_state.debate_text}"
-                
+
             if j != 2:
                 role.event(event_text)
                 response = role.ask()
@@ -214,9 +222,9 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 role.memory(response)
             else:
                 response = st.session_state.debate_text
-                
+
             self.render_chat_history("Debate Agent", role_info["name"], role_info["color"],
-                                         response.replace(f"Round {i + 1}", ""))
+                                     response.replace(f"Round {i + 1}", ""))
             st.session_state[f"round_{i}_responses"].append(f"{role_info['name']}: {response}")
 
             # 前进一位角色
@@ -268,4 +276,4 @@ if __name__ == "__main__":
         "Facilitator": "gpt-4o-mini",
     }
     app = MultiAgentsHumanDebate(debate_config, models_name)
-    app.run()
+    app.run("LLMs-HumanOutput")

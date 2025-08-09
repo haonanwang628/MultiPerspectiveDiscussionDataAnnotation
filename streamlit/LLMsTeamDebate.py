@@ -2,6 +2,7 @@ import streamlit as st
 
 import sys
 import time
+from datetime import datetime
 import json
 import os
 
@@ -10,7 +11,7 @@ if project_root not in sys.path:
     sys.path.append(project_root)
 
 from utils import Agent
-from utils.Function import save_codebook_excel, save_debate_excel, import_json
+from utils.Function import save_codebook_excel, save_debate_excel, import_json, save_json
 from config.debate_menu import *
 from config.model_menu import *
 
@@ -39,6 +40,7 @@ class MultiAgentsDebate:
         if "debate_models" not in st.session_state:
             st.session_state.debate_models = self.models_name
             st.session_state.debate_responses = []
+            st.session_state.closing = []
         if "agree_list" not in st.session_state:
             st.session_state.agree_list = []
         if "disagreed_list" not in st.session_state:
@@ -233,6 +235,7 @@ class MultiAgentsDebate:
             debate_ready_reply = st.session_state.Facilitator.ask()
             st.session_state.Facilitator.memory(debate_ready_reply, False)
             self.render_chat_history("Agree-Disagree", "Facilitator(Why Disagree)", "📃", debate_ready_reply)
+            st.session_state.debate_ready_reply = debate_ready_reply
 
     def roles_init(self):
         roles = [
@@ -359,6 +362,7 @@ class MultiAgentsDebate:
         close_response = json.loads(close.replace('```', '').replace('json', '').strip())
         self.render_chat_history("Debate Agent", "Facilitator(Final conclusion)", "⚖️",
                                  json.dumps(close_response, ensure_ascii=False, indent=2))
+        st.session_state.closing.append(close)
 
         # debate finish, And process close close_response
         st.session_state.close_resolution = close_response["Resolution"]
@@ -366,7 +370,7 @@ class MultiAgentsDebate:
             st.session_state.final_code = close_response["final_code"]
             st.session_state.final_justification = close_response["evidence"]
 
-    def run(self):
+    def run(self, output_file):
         st.set_page_config(page_title=self.title, layout="wide")
         st.title(self.title)
         self.render_chat()
@@ -390,19 +394,42 @@ class MultiAgentsDebate:
                 # Save Debate Process
                 save_debate_excel("debate.xlsx", st.session_state.target_text, st.session_state.disagreed_list_select,
                                   st.session_state.debate_responses)
-                st.session_state.debate_responses.clear()
+
                 # Save Final Codebook
+                debate_process = []
                 save_codebook_excel("codebook.xlsx", st.session_state.target_text, st.session_state.agree_list)
+                for disagree, debate_responses, close_response in zip(st.session_state.disagreed_list_select,
+                                                                      st.session_state.debate_responses,
+                                                                      st.session_state.closing):
+                    debate_process.append({
+                        "Disagreed": disagree,
+                        "Process": debate_responses,
+                        "Closing": close_response
+                    })
+
+                result = {
+                    "target_text": st.session_state.target_text,
+                    "Role_Team": st.session_state.roles_identity,
+                    "Role_init_codebook": st.session_state.roles_annotate,
+                    "Consolidating_results": st.session_state.agree_disagree_reply,
+                    "disagree_explain": st.session_state.debate_ready_reply,
+                    "Debate": debate_process,
+                    "Codebook": st.session_state.agree_list,
+                }
+                save_json(f"{output_file}/debate_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json", result)
+                st.session_state.disagreed_list_select.clear()
+                st.session_state.debate_responses.clear()
+                st.session_state.closing.clear()
 
 
 if __name__ == "__main__":
     debate_config = import_json("config/debate_config.json")
 
     models_name = {
-        "Role1": "deepseek-chat",
-        "Role2": "deepseek-chat",
-        "Role3": "deepseek-chat",
-        "Facilitator": "deepseek-chat",
+        "Role1": "gpt-4o-mini",
+        "Role2": "gpt-4o-mini",
+        "Role3": "gpt-4o-mini",
+        "Facilitator": "gpt-4o-mini",
     }
     app = MultiAgentsDebate(debate_config, models_name)
-    app.run()
+    app.run("LLMsTeamOutput")
