@@ -9,9 +9,9 @@ import os
 project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if project_root not in sys.path:
     sys.path.append(project_root)
-
+from pathlib import Path
 from utils import Agent
-from utils.Function import save_codebook_excel, save_debate_excel, import_json, save_json
+from utils.Function import save_codebook_excel, save_debate_excel, import_json, save_json, zip_folder_to_bytes
 from config.debate_menu import *
 from config.model_menu import *
 
@@ -416,7 +416,18 @@ class MultiAgentsDebate:
                     "Debate": debate_process,
                     "Codebook": st.session_state.agree_list,
                 }
-                save_json(f"{output_file}/debate_{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}.json", result)
+                if not os.path.exists(output_file):
+                    os.makedirs(output_file)
+                save_json(f"{output_file}/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
+
+                zip_bytes = zip_folder_to_bytes(output_file)
+                st.download_button(
+                    label=f"下载 {Path(output_file).name}.zip",
+                    data=zip_bytes,
+                    file_name=f"{Path(output_file).name}.zip",
+                    mime="application/zip"
+                )
+
                 st.session_state.disagreed_list_select.clear()
                 st.session_state.debate_responses.clear()
                 st.session_state.closing.clear()
