@@ -417,7 +417,8 @@ class MultiAgentsDebate:
                     "Codebook": st.session_state.agree_list,
                 }
                 if not os.path.exists(output_file):
-                    os.makedirs(output_file)
+                    os.makedirs(f"{output_file}/json")
+                    os.makedirs(f"{output_file}/excel")
                 save_json(f"{output_file}/json/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
 
                 zip_bytes = zip_folder_to_bytes(output_file)
@@ -445,5 +446,6 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
 
