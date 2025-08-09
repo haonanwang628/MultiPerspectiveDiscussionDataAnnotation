@@ -392,17 +392,17 @@ class MultiAgentsDebate:
                                                     "evidence": st.session_state.final_justification})
 
             if not st.session_state.disagreed_list:
-                if not os.path.exists(output_file):
-                    os.makedirs(output_file)
+                outdir = Path(output_file).resolve()
+                outdir.mkdir(parents=True, exist_ok=True)
 
                 # Save Debate Process
-                save_debate_excel("output_file/debate.xlsx", st.session_state.target_text,
+                save_debate_excel(str(outdir/"debate.xlsx"), st.session_state.target_text,
                                   st.session_state.disagreed_list_select,
                                   st.session_state.debate_responses)
 
                 # Save Final Codebook
                 debate_process = []
-                save_codebook_excel("output_file/codebook.xlsx", st.session_state.target_text,
+                save_codebook_excel(str(outdir/"codebook.xlsx"), st.session_state.target_text,
                                     st.session_state.agree_list)
                 for disagree, debate_responses, close_response in zip(st.session_state.disagreed_list_select,
                                                                       st.session_state.debate_responses,
@@ -423,7 +423,7 @@ class MultiAgentsDebate:
                     "Codebook": st.session_state.agree_list,
                 }
 
-                save_json(f"output_file/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
+                save_json(str(outdir/f"debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json"), result)
 
                 st.markdown("### After completing all data annotation, click to package and download all the results.")
 
@@ -451,3 +451,4 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
