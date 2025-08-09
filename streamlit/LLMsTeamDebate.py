@@ -392,12 +392,12 @@ class MultiAgentsDebate:
 
             if not st.session_state.disagreed_list:
                 # Save Debate Process
-                save_debate_excel("debate.xlsx", st.session_state.target_text, st.session_state.disagreed_list_select,
+                save_debate_excel(f"{output_file}/excel/debate.xlsx", st.session_state.target_text, st.session_state.disagreed_list_select,
                                   st.session_state.debate_responses)
 
                 # Save Final Codebook
                 debate_process = []
-                save_codebook_excel("codebook.xlsx", st.session_state.target_text, st.session_state.agree_list)
+                save_codebook_excel(f"{output_file}/excel/codebook.xlsx", st.session_state.target_text, st.session_state.agree_list)
                 for disagree, debate_responses, close_response in zip(st.session_state.disagreed_list_select,
                                                                       st.session_state.debate_responses,
                                                                       st.session_state.closing):
@@ -418,7 +418,7 @@ class MultiAgentsDebate:
                 }
                 if not os.path.exists(output_file):
                     os.makedirs(output_file)
-                save_json(f"{output_file}/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
+                save_json(f"{output_file}/json/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
 
                 zip_bytes = zip_folder_to_bytes(output_file)
                 st.download_button(
@@ -444,3 +444,4 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
