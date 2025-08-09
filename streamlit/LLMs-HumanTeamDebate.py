@@ -190,7 +190,6 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 if st.button("Input Finish", key=f"btn_round_{i}"):
                     st.session_state.input_finished = True
                     st.session_state.debate_text = f"{st.session_state.human_input}"
-                    st.session_state.human_input = ""
                     # human_text = f"\n\nConsider the human response carefully. " \
                     #              f"Decide whether you agree or disagree with it, and " \
                     #              f"briefly explain your reasoning. Your explanation should " \
@@ -241,7 +240,7 @@ class MultiAgentsHumanDebate(MultiAgentsDebate):
                 st.session_state.current_role = 0
                 st.session_state.input_finished = False
                 st.session_state.debate_text = ""
-                st.session_state.setdefault("human_input", "")
+                st.session_state.human_input = ""
 
             st.rerun()
 
@@ -279,6 +278,7 @@ if __name__ == "__main__":
     }
     app = MultiAgentsHumanDebate(debate_config, models_name)
     app.run("LLMs-HumanOutput")
+
 
 
 
