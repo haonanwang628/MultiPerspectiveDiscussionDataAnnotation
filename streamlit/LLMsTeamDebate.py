@@ -22,8 +22,8 @@ class MultiAgentsDebate:
         self.title = "LLM Team Debate"
         self.models_name = models_name
         self.config = debate_config
-        self.init_session()
         st.set_page_config(page_title=self.title, layout="wide")
+        self.init_session()
 
     def init_session(self):
         if "chat_history" not in st.session_state:
@@ -470,6 +470,7 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
 
 
