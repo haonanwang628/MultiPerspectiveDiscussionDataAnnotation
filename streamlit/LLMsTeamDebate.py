@@ -372,6 +372,7 @@ class MultiAgentsDebate:
             st.session_state.final_justification = close_response["evidence"]
 
     def run(self, output_file):
+
         st.title(self.title)
         self.render_chat()
         self.render_model_selectors()
@@ -391,7 +392,7 @@ class MultiAgentsDebate:
                                                     "evidence": st.session_state.final_justification})
 
             if not st.session_state.disagreed_list:
-                                if not os.path.exists(output_file):
+                if not os.path.exists(output_file):
                     os.makedirs(output_file)
 
                 # Save Debate Process
@@ -438,6 +439,7 @@ class MultiAgentsDebate:
                 st.session_state.debate_responses.clear()
                 st.session_state.closing.clear()
 
+
 if __name__ == "__main__":
     debate_config = import_json("config/debate_config.json")
 
@@ -449,11 +451,3 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
-
-
-
-
-
-
-
-
