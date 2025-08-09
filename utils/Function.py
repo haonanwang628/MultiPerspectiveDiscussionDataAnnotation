@@ -3,6 +3,9 @@ import json
 from openpyxl import load_workbook, Workbook
 from openpyxl.styles import Alignment
 import os
+import io
+from pathlib import Path
+from zipfile import ZipFile, ZIP_DEFLATED
 import random
 from config.debate_menu import *
 from config.model_menu import *
@@ -114,3 +117,14 @@ def save_debate_excel(file_path: str, target_text: str, disagreed_list: [str], d
 
     wb.save(file_path)
     print(f"✅ Excel with merged target_text saved: {file_path}")
+
+
+def zip_folder_to_bytes(folder_path: str) -> bytes:
+    folder = Path(folder_path)
+    buf = io.BytesIO()
+    with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
+        for p in folder.rglob("*"):
+            if p.is_file():
+                zf.write(p, p.relative_to(folder).as_posix())
+    buf.seek(0)
+    return buf.read()
