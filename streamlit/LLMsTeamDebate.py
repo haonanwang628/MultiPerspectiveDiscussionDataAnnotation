@@ -421,8 +421,9 @@ class MultiAgentsDebate:
                 save_json(f"{output_file}/json/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
 
                 zip_bytes = zip_folder_to_bytes(output_file)
+                st.markdown("## After completing all data annotation, click Download to save all the results.")
                 st.download_button(
-                    label=f"下载 {Path(output_file).name}.zip",
+                    label=f"Download results",
                     data=zip_bytes,
                     file_name=f"{Path(output_file).name}.zip",
                     mime="application/zip"
@@ -444,4 +445,5 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
