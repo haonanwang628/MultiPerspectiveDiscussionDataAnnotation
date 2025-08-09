@@ -23,6 +23,7 @@ class MultiAgentsDebate:
         self.models_name = models_name
         self.config = debate_config
         self.init_session()
+        st.set_page_config(page_title=self.title, layout="wide")
 
     def init_session(self):
         if "chat_history" not in st.session_state:
@@ -371,7 +372,6 @@ class MultiAgentsDebate:
             st.session_state.final_justification = close_response["evidence"]
 
     def run(self, output_file):
-        st.set_page_config(page_title=self.title, layout="wide")
         st.title(self.title)
         self.render_chat()
         self.render_model_selectors()
@@ -416,13 +416,37 @@ class MultiAgentsDebate:
                     "Debate": debate_process,
                     "Codebook": st.session_state.agree_list,
                 }
-                if not os.path.exists(output_file):
-                    os.makedirs(f"{output_file}/json")
-                    os.makedirs(f"{output_file}/excel")
+                
+                outdir = Path(output_file)
+                (outdir / "json").mkdir(parents=True, exist_ok=True)
+                (outdir / "excel").mkdir(parents=True, exist_ok=True)
+                
                 save_json(f"{output_file}/json/debate_{datetime.now().strftime('%Y-%m-%d_%H-%M-%S')}.json", result)
 
+                if "zip_bytes_cache" not in st.session_state:
+                    st.session_state.zip_bytes_cache = None
+                    
                 zip_bytes = zip_folder_to_bytes(output_file)
-                st.markdown("## After completing all data annotation, click Download to save all the results.")
+                st.markdown("## After completing all data annotation, click to package and download all the results.")
+                
+                if st.button("Package results (ZIP)"):
+                    files = [p for p in outdir.rglob("*") if p.is_file()]
+                    if not files:
+                        st.warning("No files found in the output folder.")
+                    else:
+                        import io
+                        from zipfile import ZipFile, ZIP_DEFLATED
+
+                        prog = st.progress(0, text=f"Zipping 0/{len(files)} …")
+                        buf = io.BytesIO()
+                        with ZipFile(buf, "w", ZIP_DEFLATED) as zf:
+                            for i, p in enumerate(files, 1):
+                                zf.write(p, p.relative_to(outdir).as_posix())
+                                prog.progress(int(i * 100 / len(files)), text=f"Zipping {i}/{len(files)} …")
+                        buf.seek(0)
+                        st.session_state.zip_bytes_cache = buf.read()
+                        prog.progress(100, text="ZIP ready ✅")
+                        
                 st.download_button(
                     label=f"Download results",
                     data=zip_bytes,
@@ -446,6 +470,7 @@ if __name__ == "__main__":
     }
     app = MultiAgentsDebate(debate_config, models_name)
     app.run("LLMsTeamOutput")
+
 
 
 
