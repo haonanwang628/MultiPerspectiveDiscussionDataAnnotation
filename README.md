@@ -1,1 +1,2 @@
-#Bridging the Multi-Perspective Teamwork Gap: LLMs-based Multi-Agent Systems for Text Annotation(TBD)
+# Bridging the Multi-Perspective Teamwork Gap: LLMs-based Multi-Agent Systems for Text Annotation(TBD)
+- Text annotation process is so critical for the pre-training of Large Language Models(LLMs) and the data feature selection of Machine Learning optimization algorithms, while human annotators not only face the challenges in time-costly also face some of the different perspectives of annotators and LLMs for data annotation also face some challenges. In our work, we introduced a social LLM-based Multi-Perspective Agent system to further simulate and bridge the teamwork gap to enhance the high-quality of social text data annotation.(TBD)
